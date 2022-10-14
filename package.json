@@ -1,0 +1,22 @@
+{
+  "name": "gobang-js",
+  "version": "0.1.0",
+  "description": "A gobang game server",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lusterofgem/gobang-js.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lusterofgem/gobang-js/issues"
+  },
+  "homepage": "https://github.com/lusterofgem/gobang-js#readme",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

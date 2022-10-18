@@ -16,6 +16,8 @@ app.listen(port);
 
 const wss = new ws.WebSocketServer({port: wsPort});
 
+let currentColor = "white";
+
 wss.on("connection", (ws, req) => {
     const clientIp = req.socket.remoteAddress;
     const clientPort = req.socket.remotePort;
@@ -51,13 +53,21 @@ wss.on("connection", (ws, req) => {
                 const point = messageContent.split(",");
                 const x = parseInt(point[0]);
                 const y = parseInt(point[1]);
-                const color = "black";
+
                 if(!Number.isInteger(x) || !Number.isInteger(y)) {
                     return;
                 }
+
+                // change turn
+                if(currentColor == "black") {
+                    currentColor = "white";
+                } else {
+                    currentColor = "black";
+                }
+
                 console.log(`${clientName}: ${message}`);
                 wss.clients.forEach((client) => {
-                    client.send(`[chess]${x},${y},${color}`);
+                    client.send(`[chess]${x},${y},${currentColor}`);
                 });
                 break;
             }

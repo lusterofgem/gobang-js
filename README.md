@@ -4,9 +4,9 @@ A gobang game server
 
 # status
 
-chat-box: ready ✅
+chat-box: ready ✔️
 
-checkerboard: in progress 🚧
+checkerboard: ready ✔️
 
 hub: nope ❌
 

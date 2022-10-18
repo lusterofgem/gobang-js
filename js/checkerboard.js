@@ -2,26 +2,19 @@ document.addEventListener("DOMContentLoaded", () => {
     let ws = new WebSocket(`ws://${location.hostname}:8081`);
 
     let checkerboard = document.getElementById("checkerboard");
+    let chessColorImage = document.getElementById("chess-color-image");
+    let restartButton = document.getElementById("restart-button");
     let context = checkerboard.getContext("2d");
-    context.strokeStyle="black";
 
     const mapSize = 15;
-    const canvasSize = 600;
+    const canvasSize = checkerboard.width;
     const unitSize = canvasSize / mapSize;
     const chessSize = unitSize * 0.8;
-
     const marginSize = unitSize / 2;
-    for(let i = 0; i < mapSize; ++i) {
-        context.moveTo(marginSize, marginSize + unitSize * i);
-        context.lineTo(canvasSize - marginSize, marginSize + unitSize * i);
-        context.stroke();
 
-        context.moveTo(marginSize + unitSize * i, marginSize);
-        context.lineTo(marginSize + unitSize * i, canvasSize - marginSize);
-        context.stroke();
-    }
+    drawCheckerboard();
 
-    checkerboard.addEventListener("click", (event) => {
+    checkerboard?.addEventListener("click", (event) => {
         const clickX = event.offsetX;
         const clickY = event.offsetY;
 
@@ -42,10 +35,18 @@ document.addEventListener("DOMContentLoaded", () => {
         ws.send(messageRaw);
     });
 
+    restartButton?.addEventListener("click", () => {
+        let message = {};
+        message["type"] = "restart-game";
+        let messageRaw = JSON.stringify(message);
+        ws.send(messageRaw);
+    });
+
     ws.onmessage = async (event) => {
         const messageRaw = await event.data;
         const message = JSON.parse(messageRaw);
 
+        console.log(`recieve message type: ${message["type"]}`); //debug!!
         switch(message["type"]) {
             case "put-chess": {
                 const point = message["content"].split(",");
@@ -59,7 +60,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 break;
             }
+            case "change-turn": {
+                const color = message["content"];
+                chessColorImage.src = `/assets/images/${color}.png`;
+                break;
+            }
             case "sync-checkerboard": {
+                context.clearRect(0, 0, canvasSize, canvasSize);
+                drawCheckerboard();
                 const checkerboard = message["content"];
                 for(let i in checkerboard) {
                     for(let j in checkerboard[i]) {
@@ -71,6 +79,26 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
                 break;
             }
+            case "sync-winner": {
+                const winner = message["content"];
+                console.log(winner); //debug!!
+                break;
+            }
+        }
+    }
+
+    function drawCheckerboard() {
+        context.beginPath();
+        context.closePath();
+        context.strokeStyle="black";
+        for(let i = 0; i < mapSize; ++i) {
+            context.moveTo(marginSize, marginSize + unitSize * i);
+            context.lineTo(canvasSize - marginSize, marginSize + unitSize * i);
+            context.stroke();
+
+            context.moveTo(marginSize + unitSize * i, marginSize);
+            context.lineTo(marginSize + unitSize * i, canvasSize - marginSize);
+            context.stroke();
         }
     }
 

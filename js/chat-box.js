@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     })
 
-    textButton?.addEventListener("click", ()=> {
+    textButton?.addEventListener("click", () => {
         if(textInput.value !== "") {
             let message = {};
             message["type"] = "chat";

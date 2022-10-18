@@ -1,5 +1,13 @@
+header {
+    display: flex;
+    background-color: #FF9933;
+}
+
 main {
     display: flex;
+}
+
+body {
 }
 
 #chat-box {

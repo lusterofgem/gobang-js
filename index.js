@@ -134,12 +134,53 @@ wss.on("connection", (ws, req) => {
                                 break;
                             }
                             if(firstColor !== checkerboard[i + (4 - k)][j + k]) {
-                                console.log(i + (4 - k), j + k);
                                 break;
                             }
                             if(k === 4) {
                                 winner = firstColor;
                                 console.log(`winner is ${winner}, shape2`); //debug!!
+                            }
+                        }
+                    }
+                }
+                // shape3
+                // *
+                // *
+                // *
+                // *
+                // *
+                for(let i = 0; i < mapSize; ++i) {
+                    for(let j = 0; j < mapSize - 4; ++j) {
+                        for(let k = 1; k < 5; ++k) {
+                            const firstColor = checkerboard[i][j];
+                            if(firstColor === "") {
+                                break;
+                            }
+                            if(firstColor !== checkerboard[i][j + k]) {
+                                break;
+                            }
+                            if(k === 4) {
+                                winner = firstColor;
+                                console.log(`winner is ${winner}, shape3`); //debug!!
+                            }
+                        }
+                    }
+                }
+                // shape4
+                // * * * * *
+                for(let i = 0; i < mapSize - 4; ++i) {
+                    for(let j = 0; j < mapSize; ++j) {
+                        for(let k = 1; k < 5; ++k) {
+                            const firstColor = checkerboard[i][j];
+                            if(firstColor === "") {
+                                break;
+                            }
+                            if(firstColor !== checkerboard[i + k][j]) {
+                                break;
+                            }
+                            if(k === 4) {
+                                winner = firstColor;
+                                console.log(`winner is ${winner}, shape4`); //debug!!
                             }
                         }
                     }

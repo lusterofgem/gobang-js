@@ -2,32 +2,16 @@ main {
     display: flex;
 }
 
-/* #checkerboard-box {
-
-} */
-
-#checkboard {
-    max-width: auto;
-    max-height: auto;
-}
-
 #chat-box {
-    /* margin: auto; */
-    padding: 20px;
-    width: 30%;
-    min-width: 500px;
-}
-
-#text-area {
+    margin-right: auto;
     width: 100%;
-    height: 50vh;
-    padding: 0px;
-    resize: none;
+    min-width: 500px;
+    padding: 20px;
 }
 
 @media(max-width: 400px) {
     main {
-    display: block;
+        display: block;
     }
     #chat-box {
         width: 100%;

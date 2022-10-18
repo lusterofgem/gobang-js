@@ -1,0 +1,10 @@
+#text-area {
+    width: 100%;
+/*     height: 50vh; */
+    padding: 0px;
+    resize: none;
+}
+
+#text-input {
+    width: 100%;
+}

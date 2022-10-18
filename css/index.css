@@ -3,9 +3,10 @@ main {
 }
 
 #chat-box {
-    margin-right: auto;
     width: 100%;
+    height: 600px;
     min-width: 500px;
+    margin-right: auto;
     padding: 20px;
 }
 

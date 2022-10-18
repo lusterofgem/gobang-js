@@ -1,0 +1,6 @@
+#chess{
+    margin: auto;
+    display: block;
+    box-shadow: 5px 5px 5px #808080,-2px -2px 2px #D5D5D5;
+    cursor:pointer ;
+}

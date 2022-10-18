@@ -16,7 +16,16 @@ app.listen(port);
 
 const wss = new ws.WebSocketServer({port: wsPort});
 
-let currentColor = "white";
+const mapSize = 15;
+
+let currentColor = "black";
+let checkerboard = [];
+for(let i = 0; i < mapSize; ++i) {
+    checkerboard[i] = [];
+    for(let j = 0; j < mapSize; ++j) {
+        checkerboard[i][j] = "";
+    }
+}
 
 wss.on("connection", (ws, req) => {
     const clientIp = req.socket.remoteAddress;
@@ -58,6 +67,16 @@ wss.on("connection", (ws, req) => {
                     return;
                 }
 
+                if(checkerboard[x][y] !== "") {
+                    return;
+                }
+
+                console.log(`${clientName}: ${message}`);
+                wss.clients.forEach((client) => {
+                    checkerboard[x][y] = currentColor;
+                    client.send(`[chess]${x},${y},${currentColor}`);
+                });
+
                 // change turn
                 if(currentColor == "black") {
                     currentColor = "white";
@@ -65,10 +84,6 @@ wss.on("connection", (ws, req) => {
                     currentColor = "black";
                 }
 
-                console.log(`${clientName}: ${message}`);
-                wss.clients.forEach((client) => {
-                    client.send(`[chess]${x},${y},${currentColor}`);
-                });
                 break;
             }
         }

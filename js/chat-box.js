@@ -10,35 +10,35 @@ document.addEventListener("DOMContentLoaded", () => {
     textInput?.addEventListener("keyup", () => {
         if(event.key == "Enter") {
             if(textInput.value !== "") {
-                const message = textInput.value;
+                let message = {};
+                message["type"] = "chat";
+                message["content"] = textInput.value;
+                let messageRaw = JSON.stringify(message);
                 textInput.value = "";
-                ws.send("[chat]" + message);
+                ws.send(messageRaw);
             }
         }
     })
 
     textButton?.addEventListener("click", ()=> {
         if(textInput.value !== "") {
-            const message = textInput.value;
+            let message = {};
+            message["type"] = "chat";
+            message["content"] = textInput.value;
+            let messageRaw = JSON.stringify(message);
             textInput.value = "";
-            ws.send("[chat]" + message);
+            ws.send(messageRaw);
         }
     });
 
     ws.onmessage = async (event) => {
-        const message = await event.data;
-        // only handle message in specific pattern, e.g. "[text]hello, world"
-        if(message.search(/\[.*\].*/) !== 0) {
-            console.log(`server send message with invalid format!\n${message}`);
+        const messageRaw = await event.data;
+        const message = JSON.parse(messageRaw);
+        if(message["type"] != "chat") {
             return;
         }
-        const closeSquareBracketIndex = message.indexOf("]");
-        const messageType = message.slice(1, closeSquareBracketIndex);
-        const messageContent = message.slice(closeSquareBracketIndex + 1, message.length);
-        if(messageType != "chat") {
-            return;
-        }
-        textArea.value += messageContent + "\n";
+
+        textArea.value += message["content"] + "\n";
     }
 
     ws.onopen = () => {

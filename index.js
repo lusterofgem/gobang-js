@@ -33,33 +33,32 @@ wss.on("connection", (ws, req) => {
     const clientName = `${clientIp}:${clientPort}`;
 
     console.log(`${clientName} joined!`);
+    let message = {};
+    message["type"] = "chat";
+    message["content"] = `${clientName} joined!`;
+    const messageRaw = (JSON.stringify(message));
     wss.clients.forEach((client) => {
-        client.send(`[chat]${clientName} joined!`);
+        client.send(messageRaw);
     });
 
     ws.on("message", (buffer) => {
-        const message = buffer.toString();
+        const messageRaw = buffer.toString();
+        // console.log(messageRaw);
+        const message = JSON.parse(messageRaw);
 
-        // only handle message in specific pattern, e.g. "[text]hello, world"
-        if(message.search(/\[.*\].*/) !== 0) {
-            console.log(`${clientName} send message with invalid format!`);
-            return;
-        }
-
-        const closeSquareBracketIndex = message.indexOf("]");
-        const messageType = message.slice(1, closeSquareBracketIndex);
-        const messageContent = message.slice(closeSquareBracketIndex + 1, message.length);
-        switch(messageType) {
+        switch(message["type"]) {
             case "chat": {
-                const chat = messageContent;
-                console.log(`${clientName}: ${message}`);
+                console.log(`${clientName}: [${message["type"]}]${message["content"]}`);
+                let messageToClient = message;
+                messageToClient["content"] = `${clientName}: ${message["content"]}`;
+                const messageToClientRaw = JSON.stringify(messageToClient);
                 wss.clients.forEach((client) => {
-                    client.send(`[chat]${clientName}: ${chat}`);
+                    client.send(messageToClientRaw);
                 });
                 break;
             }
             case "chess": {
-                const point = messageContent.split(",");
+                const point = message["content"].split(",");
                 const x = parseInt(point[0]);
                 const y = parseInt(point[1]);
 
@@ -71,10 +70,13 @@ wss.on("connection", (ws, req) => {
                     return;
                 }
 
-                console.log(`${clientName}: ${message}`);
+                console.log(`${clientName}: [${message["type"]}]${message["content"]}`);
+                let messageToClient = message;
+                messageToClient["content"] = message["content"] + `,${currentColor}`;
+                const messageToClientRaw = JSON.stringify(messageToClient);
                 wss.clients.forEach((client) => {
                     checkerboard[x][y] = currentColor;
-                    client.send(`[chess]${x},${y},${currentColor}`);
+                    client.send(messageToClientRaw);
                 });
 
                 // change turn
@@ -91,8 +93,12 @@ wss.on("connection", (ws, req) => {
 
     ws.on("close", () => {
         console.log(`${clientName} leaved!`);
+        let message = {};
+        message["type"] = "chat";
+        message["content"] = `${clientName} leaved!`;
+        let messageRaw = JSON.stringify(message);
         wss.clients.forEach((client) => {
-            client.send(`[chat]${clientName} leaved!`);
+            client.send(messageRaw)
         });
     });
 });

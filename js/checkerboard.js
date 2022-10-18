@@ -35,24 +35,21 @@ document.addEventListener("DOMContentLoaded", () => {
             mapY = mapY - 1;
         }
 
-        ws.send(`[chess]${mapX},${mapY}`)
-        // putChess(mapX, mapY, "black");
+        let message = {};
+        message["type"] = "chess";
+        message["content"] = `${mapX},${mapY}`;
+        let messageRaw = JSON.stringify(message);
+        ws.send(messageRaw);
     });
 
     ws.onmessage = async (event) => {
-        const message = await event.data;
-        // only handle message in specific pattern, e.g. "[text]hello, world"
-        if(message.search(/\[.*\].*/) !== 0) {
-            console.log(`server send message with invalid format!\n${message}`);
+        const messageRaw = await event.data;
+        const message = JSON.parse(messageRaw);
+
+        if(message["type"] != "chess") {
             return;
         }
-        const closeSquareBracketIndex = message.indexOf("]");
-        const messageType = message.slice(1, closeSquareBracketIndex);
-        const messageContent = message.slice(closeSquareBracketIndex + 1, message.length);
-        if(messageType != "chess") {
-            return;
-        }
-        const point = messageContent.split(",");
+        const point = message["content"].split(",");
         const x = parseInt(point[0]);
         const y = parseInt(point[1]);
         const color = point[2];

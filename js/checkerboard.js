@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         let message = {};
-        message["type"] = "chess";
+        message["type"] = "put-chess";
         message["content"] = `${mapX},${mapY}`;
         let messageRaw = JSON.stringify(message);
         ws.send(messageRaw);
@@ -46,17 +46,32 @@ document.addEventListener("DOMContentLoaded", () => {
         const messageRaw = await event.data;
         const message = JSON.parse(messageRaw);
 
-        if(message["type"] != "chess") {
-            return;
+        switch(message["type"]) {
+            case "put-chess": {
+                const point = message["content"].split(",");
+                const x = parseInt(point[0]);
+                const y = parseInt(point[1]);
+                const color = point[2];
+                if(!Number.isInteger(x) || !Number.isInteger(y)) {
+                    return;
+                }
+                putChess(x, y, color);
+
+                break;
+            }
+            case "sync-checkerboard": {
+                const checkerboard = message["content"];
+                for(let i in checkerboard) {
+                    for(let j in checkerboard[i]) {
+                        if(checkerboard[i][j] !== "") {
+                            const color = checkerboard[i][j];
+                            putChess(i, j, color);
+                        }
+                    }
+                }
+                break;
+            }
         }
-        const point = message["content"].split(",");
-        const x = parseInt(point[0]);
-        const y = parseInt(point[1]);
-        const color = point[2];
-        if(!Number.isInteger(x) || !Number.isInteger(y)) {
-            return;
-        }
-        putChess(x, y, color);
     }
 
     function putChess(mapX, mapY, color) {

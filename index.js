@@ -32,11 +32,21 @@ wss.on("connection", (ws, req) => {
     const clientPort = req.socket.remotePort;
     const clientName = `${clientIp}:${clientPort}`;
 
+    // greetings
     console.log(`${clientName} joined!`);
     let message = {};
     message["type"] = "chat";
     message["content"] = `${clientName} joined!`;
-    const messageRaw = (JSON.stringify(message));
+    let messageRaw = JSON.stringify(message);
+    wss.clients.forEach((client) => {
+        client.send(messageRaw);
+    });
+
+    // sync checkerboard
+    message = {};
+    message["type"] = "sync-checkerboard";
+    message["content"] = checkerboard;
+    messageRaw = JSON.stringify(message);
     wss.clients.forEach((client) => {
         client.send(messageRaw);
     });
@@ -57,7 +67,7 @@ wss.on("connection", (ws, req) => {
                 });
                 break;
             }
-            case "chess": {
+            case "put-chess": {
                 const point = message["content"].split(",");
                 const x = parseInt(point[0]);
                 const y = parseInt(point[1]);

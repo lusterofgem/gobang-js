@@ -23,18 +23,23 @@ document.addEventListener("DOMContentLoaded", () => {
         const clickX = event.offsetX;
         const clickY = event.offsetY;
 
-        const mapX = parseInt(clickX / unitSize);
-        const mapY = parseInt(clickY / unitSize);
+        let mapX = parseInt(clickX / unitSize);
+        let mapY = parseInt(clickY / unitSize);
 
-
+        if(mapX === mapSize) {
+            mapX = mapX - 1;
+        }
+        if(mapY === mapSize) {
+            mapY = mapY - 1;
+        }
 
         putChess(mapX, mapY, "black");
     });
 
-    function putChess(x, y, color) {
+    function putChess(mapX, mapY, color) {
         context.beginPath();
-        const canvasX = marginSize + x * unitSize;
-        const canvasY = marginSize + y * unitSize;
+        const canvasX = marginSize + mapX * unitSize;
+        const canvasY = marginSize + mapY * unitSize;
         const radius = chessSize / 2;
         const startAngle = 0;
         const endAngle = 2 * Math.PI;

@@ -30,7 +30,7 @@ main {
     display: block;
     }
     #chat-box {
-        width: 20%;
+        width: 100%;
         min-width: 300px;
         padding-top: 20px;
     }

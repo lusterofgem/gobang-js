@@ -4,14 +4,20 @@ A gobang game server
 
 # status
 
-still in planning
+chat-box: ready ✅
+
+checkerboard: in progress 🚧
+
+hub: nope ❌
+
+battle room: nope ❌
 
 # using
 
  - node.js
 
  - ws
- 
+
  
  ---
  

@@ -23,21 +23,51 @@ wss.on("connection", (ws, req) => {
 
     console.log(`${clientName} joined!`);
     wss.clients.forEach((client) => {
-        client.send(`${clientName} joined!`);
+        client.send(`[chat]${clientName} joined!`);
     });
 
     ws.on("message", (buffer) => {
         const message = buffer.toString();
-        console.log(`${clientName}: ${message}`);
-        wss.clients.forEach((client) => {
-            client.send(`${clientName}: ${message}`);
-        });
+
+        // only handle message in specific pattern, e.g. "[text]hello, world"
+        if(message.search(/\[.*\].*/) !== 0) {
+            console.log(`${clientName} send message with invalid format!`);
+            return;
+        }
+
+        const closeSquareBracketIndex = message.indexOf("]");
+        const messageType = message.slice(1, closeSquareBracketIndex);
+        const messageContent = message.slice(closeSquareBracketIndex + 1, message.length);
+        switch(messageType) {
+            case "chat": {
+                const chat = messageContent;
+                console.log(`${clientName}: ${message}`);
+                wss.clients.forEach((client) => {
+                    client.send(`[chat]${clientName}: ${chat}`);
+                });
+                break;
+            }
+            case "chess": {
+                const point = messageContent.split(",");
+                const x = parseInt(point[0]);
+                const y = parseInt(point[1]);
+                const color = "black";
+                if(!Number.isInteger(x) || !Number.isInteger(y)) {
+                    return;
+                }
+                console.log(`${clientName}: ${message}`);
+                wss.clients.forEach((client) => {
+                    client.send(`[chess]${x},${y},${color}`);
+                });
+                break;
+            }
+        }
     });
 
     ws.on("close", () => {
         console.log(`${clientName} leaved!`);
         wss.clients.forEach((client) => {
-            client.send(`${clientName} leaved!`);
+            client.send(`[chat]${clientName} leaved!`);
         });
     });
 });

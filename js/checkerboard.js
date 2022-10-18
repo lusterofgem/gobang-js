@@ -1,4 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
+    let ws = new WebSocket(`ws://${location.hostname}:8081`);
+
     let checkerboard = document.getElementById("checkerboard");
     let context = checkerboard.getContext("2d");
     context.strokeStyle="black";
@@ -33,8 +35,32 @@ document.addEventListener("DOMContentLoaded", () => {
             mapY = mapY - 1;
         }
 
-        putChess(mapX, mapY, "black");
+        ws.send(`[chess]${mapX},${mapY}`)
+        // putChess(mapX, mapY, "black");
     });
+
+    ws.onmessage = async (event) => {
+        const message = await event.data;
+        // only handle message in specific pattern, e.g. "[text]hello, world"
+        if(message.search(/\[.*\].*/) !== 0) {
+            console.log(`server send message with invalid format!\n${message}`);
+            return;
+        }
+        const closeSquareBracketIndex = message.indexOf("]");
+        const messageType = message.slice(1, closeSquareBracketIndex);
+        const messageContent = message.slice(closeSquareBracketIndex + 1, message.length);
+        if(messageType != "chess") {
+            return;
+        }
+        const point = messageContent.split(",");
+        const x = parseInt(point[0]);
+        const y = parseInt(point[1]);
+        const color = point[2];
+        if(!Number.isInteger(x) || !Number.isInteger(y)) {
+            return;
+        }
+        putChess(x, y, color);
+    }
 
     function putChess(mapX, mapY, color) {
         context.beginPath();

@@ -2,17 +2,19 @@ main {
     display: flex;
 }
 
-#checkerboard-box {
-    width: 80%;
-}
+/* #checkerboard-box {
+
+} */
 
 #checkboard {
-    width: auto;
-    height: auto;
+    max-width: auto;
+    max-height: auto;
 }
 
 #chat-box {
-    width: 20%;
+    /* margin: auto; */
+    padding: 20px;
+    width: 30%;
     min-width: 500px;
 }
 
@@ -23,13 +25,13 @@ main {
     resize: none;
 }
 
-@media(max-width: 1000px) {
+@media(max-width: 400px) {
     main {
     display: block;
-}
+    }
     #chat-box {
         width: 20%;
         min-width: 300px;
-
+        padding-top: 20px;
     }
 }

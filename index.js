@@ -32,7 +32,7 @@ wss.on("connection", (ws, req) => {
     const clientPort = req.socket.remotePort;
     const clientName = `${clientIp}:${clientPort}`;
 
-    // greetings
+    // greeting
     console.log(`${clientName} joined!`);
     let message = {};
     message["type"] = "chat";
@@ -95,6 +95,52 @@ wss.on("connection", (ws, req) => {
                 } else {
                     currentColor = "black";
                 }
+
+                let winner = "";
+                // shape1
+                // *
+                //   *
+                //     *
+                //       *
+                //         *
+                for(let i = 0; i < mapSize - 4; ++i) {
+                    for(let j = 0; j < mapSize - 4; ++j) {
+                        for(let k = 1; k < 5; ++k) {
+                            if(checkerboard[i][j] === "") {
+                                break;
+                            }
+                            if(checkerboard[i][j] !== checkerboard[i + k][j + k]) {
+                                break;
+                            }
+                            if(k === 4) {
+                                winner = checkerboard[i][j];
+                                console.log(`winner is ${winner}, shape1`); //debug!!
+                            }
+                        }
+                    }
+                }
+                // shape2
+                //         *
+                //       *
+                //     *
+                //   *
+                // *
+                // for(let i = 0; i < mapSize - 4; ++i) {
+                //     for(let j = 4; j < mapSize; ++j) {
+                //         for(let k = 1; k < 5; ++k) {
+                //             if(checkerboard[i][j] === "") {
+                //                 break;
+                //             }
+                //             if(checkerboard[i + 4][j] !== checkerboard[i + (4 - k)][j + k]) {
+                //                 break;
+                //             }
+                //             if(k === 4) {
+                //                 winner = checkerboard[i][j];
+                //                 console.log(`winner is ${winner}, shape2`); //debug!!
+                //             }
+                //         }
+                //     }
+                // }
 
                 break;
             }

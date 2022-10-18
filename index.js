@@ -125,22 +125,23 @@ wss.on("connection", (ws, req) => {
                 //     *
                 //   *
                 // *
-                // for(let i = 0; i < mapSize - 4; ++i) {
-                //     for(let j = 4; j < mapSize; ++j) {
-                //         for(let k = 1; k < 5; ++k) {
-                //             if(checkerboard[i][j] === "") {
-                //                 break;
-                //             }
-                //             if(checkerboard[i + 4][j] !== checkerboard[i + (4 - k)][j + k]) {
-                //                 break;
-                //             }
-                //             if(k === 4) {
-                //                 winner = checkerboard[i][j];
-                //                 console.log(`winner is ${winner}, shape2`); //debug!!
-                //             }
-                //         }
-                //     }
-                // }
+                for(let i = 0; i < mapSize - 4; ++i) {
+                    for(let j = 0; j < mapSize - 4; ++j) {
+                        for(let k = 1; k < 5; ++k) {
+                            if(checkerboard[i][j] === "") {
+                                break;
+                            }
+                            if(checkerboard[i + 4][j] !== checkerboard[i + (4 - k)][j + k]) {
+                                console.log(i + (4 - k), j + k);
+                                break;
+                            }
+                            if(k === 4) {
+                                winner = checkerboard[i][j];
+                                console.log(`winner is ${winner}, shape2`); //debug!!
+                            }
+                        }
+                    }
+                }
 
                 break;
             }

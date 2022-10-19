@@ -13,7 +13,7 @@ The message is a json (stringifed object), the structure is like this:
 }
 ```
 
-# client to server message
+## client to server message
  
  - put-chess
 
@@ -21,7 +21,7 @@ The message is a json (stringifed object), the structure is like this:
  
  - restart-game
 
-# server to client message
+## server to client message
 
  - put-chess
  
@@ -33,13 +33,13 @@ The message is a json (stringifed object), the structure is like this:
  
  - change-turn
 
-# using port
+## using port
 
  - express: 8080
 
  - ws: 8081
 
-# status
+## status
 
 chat-box: ready ✔️
 

@@ -27,6 +27,8 @@ chat-box: ready ✔️
 
 checkerboard: ready ✔️
 
+identify different players: nope ❌
+
 hub: nope ❌
 
 battle room: nope ❌

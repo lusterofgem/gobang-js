@@ -1,4 +1,8 @@
-// add "[chat]" prefix before the send out message
+// output message:
+// - chat
+
+// input message:
+// - chat
 
 document.addEventListener("DOMContentLoaded", () => {
     let ws = new WebSocket(`ws://${location.hostname}:8081`);

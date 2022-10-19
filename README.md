@@ -2,7 +2,7 @@
 
 A gobang game server.
 
-![preview](https://github.com/lusterofgem/gobang-js/blob/main/assets/images/preview)
+![preview](https://github.com/lusterofgem/gobang-js/blob/main/assets/images/preview.png)
 
 The client & serveer use ws to transfer message to communicate.
 

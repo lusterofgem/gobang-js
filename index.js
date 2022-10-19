@@ -216,12 +216,21 @@ wss.on("connection", (ws, req) => {
 
                 if(winner !== "") {
                     // notify client to sync winner
-                    message = {};
-                    message["type"] = "sync-winner";
-                    message["content"] = winner;
-                    messageRaw = JSON.stringify(message);
+                    let messageToClient = {};
+                    messageToClient["type"] = "sync-winner";
+                    messageToClient["content"] = winner;
+                    let messageToClientRaw = JSON.stringify(messageToClient);
                     wss.clients.forEach((client) => {
-                        client.send(messageRaw);
+                        client.send(messageToClientRaw);
+                    });
+
+                    // send winning message to chat
+                    messageToClient = {};
+                    messageToClient["type"] = "chat";
+                    messageToClient["content"] = `[server] ${winner} wins!`;
+                    messageToClientRaw = JSON.stringify(messageToClient);
+                    wss.clients.forEach((client) => {
+                        client.send(messageToClientRaw);
                     });
                 }
 

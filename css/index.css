@@ -1,13 +1,16 @@
 header {
     display: flex;
     background-color: #FF9933;
+    justify-content: space-between;
 }
 
 main {
     display: flex;
 }
 
-body {
+#hint-box {
+    display: flex;
+    align-items: center;
 }
 
 #chat-box {

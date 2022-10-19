@@ -38,6 +38,7 @@ battle room: nope ❌
     "type": "put-chess",
     "content": "0,0"
 }
+```
 
  - chat
 
@@ -65,6 +66,7 @@ battle room: nope ❌
     "type": "put-chess",
     "content": "0,0,black"
 }
+```
 
  - chat
 

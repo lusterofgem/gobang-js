@@ -79,6 +79,18 @@ battle room: nope ❌
 
  - sync-checkerboard
 
+ ```
+ {
+    "type": "sync-checkerboard",
+    "content": [
+        ["", "", "", ...],
+        ["", "", "", ...],
+        ["", "", "", ...],
+        ...
+    ]
+ }
+ ```
+
  - sync-winner
  
 ```

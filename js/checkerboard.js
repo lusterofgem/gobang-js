@@ -91,7 +91,11 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             case "sync-winner": {
                 const winner = message["content"];
-                console.log(winner); //debug!!
+                if(winner === "") {
+                    restartButton.style.visibility = "hidden";
+                } else {
+                    restartButton.style.visibility = "visible";
+                }
                 break;
             }
         }

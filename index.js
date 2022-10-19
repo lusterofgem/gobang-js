@@ -237,6 +237,10 @@ wss.on("connection", (ws, req) => {
                 break;
             }
             case "restart-game": {
+                if(winner === "") {
+                    return;
+                }
+
                 winner = "";
 
                 currentColor = "black";
@@ -253,6 +257,15 @@ wss.on("connection", (ws, req) => {
                 message["type"] = "sync-checkerboard";
                 message["content"] = checkerboard;
                 let messageRaw = JSON.stringify(message);
+                wss.clients.forEach((client) => {
+                    client.send(messageRaw);
+                });
+
+                // notify client to sync winner
+                message = {};
+                message["type"] = "sync-winner";
+                message["content"] = winner;
+                messageRaw = JSON.stringify(message);
                 wss.clients.forEach((client) => {
                     client.send(messageRaw);
                 });

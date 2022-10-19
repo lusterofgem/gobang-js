@@ -214,6 +214,19 @@ wss.on("connection", (ws, req) => {
                     }
                 }
 
+                // check if the checkerboard is full
+                let checkerboardFull = true;
+                for(let i = 0; i < mapSize; ++i) {
+                    for(let j = 0; j < mapSize; ++j) {
+                        if(checkerboard[i][j] === "") {
+                            checkerboardFull = false;
+                        }
+                    }
+                }
+                if(checkerboardFull) {
+                    winner = "draw";
+                }
+
                 if(winner !== "") {
                     // notify client to sync winner
                     let messageToClient = {};
@@ -227,7 +240,11 @@ wss.on("connection", (ws, req) => {
                     // send winning message to chat
                     messageToClient = {};
                     messageToClient["type"] = "chat";
-                    messageToClient["content"] = `[server] ${winner} wins!`;
+                    if(winner !== "draw") {
+                        messageToClient["content"] = `[server] ${winner} wins!`;
+                    } else {
+                        messageToClient["content"] = `[server] It's a draw!`;
+                    }
                     messageToClientRaw = JSON.stringify(messageToClient);
                     wss.clients.forEach((client) => {
                         client.send(messageToClientRaw);

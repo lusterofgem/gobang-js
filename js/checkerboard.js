@@ -56,7 +56,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const messageRaw = await event.data;
         const message = JSON.parse(messageRaw);
 
-        console.log(`recieve message type: ${message["type"]}`); //debug!!
         switch(message["type"]) {
             case "put-chess": {
                 const point = message["content"].split(",");

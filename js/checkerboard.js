@@ -1,3 +1,13 @@
+// output message
+// - put-chess
+// - restart-game
+
+// input message
+// - put-chess
+// - sync-checkerboard
+// - sync-winner
+// - change-turn
+
 document.addEventListener("DOMContentLoaded", () => {
     let ws = new WebSocket(`ws://${location.hostname}:8081`);
 

@@ -13,26 +13,6 @@ The message is a json (stringifed object), the structure is like this:
 }
 ```
 
-## client to server message
- 
- - put-chess
-
- - chat
- 
- - restart-game
-
-## server to client message
-
- - put-chess
- 
- - chat
- 
- - sync-checkerboard
- 
- - sync-winner
- 
- - change-turn
-
 ## using port
 
  - express: 8080
@@ -49,6 +29,71 @@ hub: nope ❌
 
 battle room: nope ❌
 
+## client to server message
+ 
+ - put-chess
+
+```
+{
+    "type": "put-chess",
+    "content": "0,0"
+}
+
+ - chat
+
+```
+{
+    "type": "chat",
+    "content": "hello there"
+}
+```
+
+ - restart-game
+
+```
+{
+    "type": "restart-game",
+}
+```
+
+## server to client message
+
+ - put-chess
+
+```
+{
+    "type": "put-chess",
+    "content": "0,0,black"
+}
+
+ - chat
+
+```
+{
+    "type": "chat",
+    "content": "hello there"
+}
+```
+
+ - sync-checkerboard
+
+ - sync-winner
+ 
+```
+{
+    "type": "sync-winner",
+    "content": "black"
+}
+```
+
+ - change-turn
+
+```
+{
+    "type": "change-turn",
+    "content": "black"
+}
+```
 
  ---
  

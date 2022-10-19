@@ -2,6 +2,8 @@
 
 A gobang game server.
 
+![preview](https://github.com/lusterofgem/gobang-js/assets/preview)
+
 The client & serveer use ws to transfer message to communicate.
 
 The message is a json (stringifed object), the structure is like this:

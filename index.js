@@ -14,6 +14,18 @@ app.use('/', express.static(__dirname + '/'));
 
 app.listen(port);
 
+// output message
+// - put-chess
+// - sync-checkerboard
+// - sync-winner
+// - sync-turn
+// - chat
+
+// input messae
+// - put-chess
+// - restart-game
+// - chat
+
 const wss = new ws.WebSocketServer({port: wsPort});
 
 const mapSize = 15;

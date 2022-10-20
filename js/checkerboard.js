@@ -6,7 +6,7 @@
 // - put-chess
 // - sync-checkerboard
 // - sync-winner
-// - change-turn
+// - sync-turn
 
 document.addEventListener("DOMContentLoaded", () => {
     let ws = new WebSocket(`ws://${location.hostname}:8081`);
@@ -69,7 +69,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 break;
             }
-            case "change-turn": {
+            case "sync-turn": {
                 const color = message["content"];
                 chessColorImage.src = `/assets/images/${color}.png`;
                 break;

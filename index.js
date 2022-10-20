@@ -54,6 +54,15 @@ wss.on("connection", (ws, req) => {
         client.send(messageRaw);
     });
 
+    // notify client to sync turn
+    messageToClient = {};
+    messageToClient["type"] = "sync-turn";
+    messageToClient["content"] = currentColor
+    messageToClientRaw = JSON.stringify(messageToClient);
+    wss.clients.forEach((client) => {
+        client.send(messageToClientRaw);
+    });
+
     // notify client to sync winner
     message = {};
     message["type"] = "sync-winner";
@@ -114,9 +123,9 @@ wss.on("connection", (ws, req) => {
                 } else {
                     currentColor = "black";
                 }
-                // send change turn message
+                // notify client to sync turn
                 messageToClient = {};
-                messageToClient["type"] = "change-turn";
+                messageToClient["type"] = "sync-turn";
                 messageToClient["content"] = currentColor
                 messageToClientRaw = JSON.stringify(messageToClient);
                 wss.clients.forEach((client) => {
@@ -287,9 +296,9 @@ wss.on("connection", (ws, req) => {
                     client.send(messageRaw);
                 });
 
-                // send change turn message
+                // notify client to sync turn
                 messageToClient = {};
-                messageToClient["type"] = "change-turn";
+                messageToClient["type"] = "sync-turn";
                 messageToClient["content"] = currentColor
                 messageToClientRaw = JSON.stringify(messageToClient);
                 wss.clients.forEach((client) => {

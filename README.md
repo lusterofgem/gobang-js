@@ -104,11 +104,11 @@ battle room: nope ❌
 }
 ```
 
- - change-turn
+ - sync-turn
 
 ```
 {
-    "type": "change-turn",
+    "type": "sync-turn",
     "content": "black"
 }
 ```

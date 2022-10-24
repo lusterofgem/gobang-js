@@ -18,8 +18,6 @@ main {
 }
 
 #restart-button {
-    border: 0px;
-    padding: 0px;
     visibility: hidden;
 }
 

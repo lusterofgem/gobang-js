@@ -17,6 +17,10 @@ main {
     align-items: center;
 }
 
+#restart-button {
+    visibility: hidden;
+}
+
 #checkerboard {
     background: linear-gradient(90deg, rgba(161,90,0,1) 0%, rgba(159,141,39,1) 43%, rgba(255,177,0,1) 100%);
     display: block;

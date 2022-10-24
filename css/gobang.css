@@ -2,17 +2,17 @@ body {
     margin: 0px;
 }
 
-header {
+main {
+    display: flex;
+}
+
+#ingame-top-box {
     display: flex;
     background-color: #FF9933;
     justify-content: space-between;
 }
 
-main {
-    display: flex;
-}
-
-#hint-box {
+#round-hint-box {
     display: flex;
     align-items: center;
 }

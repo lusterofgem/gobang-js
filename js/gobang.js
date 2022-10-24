@@ -1,20 +1,25 @@
 // output message
 // - put-chess
 // - restart-game
+// - chat
 
 // input message
 // - put-chess
 // - sync-checkerboard
 // - sync-winner
 // - sync-turn
+// - chat
 
 document.addEventListener("DOMContentLoaded", () => {
     let ws = new WebSocket(`ws://${location.hostname}:8081`);
 
     let checkerboard = document.getElementById("checkerboard");
+    let context = checkerboard.getContext("2d");
     let chessColorImage = document.getElementById("chess-color-image");
     let restartButton = document.getElementById("restart-button");
-    let context = checkerboard.getContext("2d");
+    let textArea = document.getElementById("text-area");
+    let textInput = document.getElementById("text-input");
+    let textButton = document.getElementById("text-button");
 
     const mapSize = 15;
     const canvasSize = checkerboard.width;
@@ -50,6 +55,30 @@ document.addEventListener("DOMContentLoaded", () => {
         message["type"] = "restart-game";
         let messageRaw = JSON.stringify(message);
         ws.send(messageRaw);
+    });
+
+    textInput?.addEventListener("keyup", () => {
+        if(event.key == "Enter") {
+            if(textInput.value !== "") {
+                let message = {};
+                message["type"] = "chat";
+                message["content"] = textInput.value;
+                let messageRaw = JSON.stringify(message);
+                textInput.value = "";
+                ws.send(messageRaw);
+            }
+        }
+    })
+
+    textButton?.addEventListener("click", () => {
+        if(textInput.value !== "") {
+            let message = {};
+            message["type"] = "chat";
+            message["content"] = textInput.value;
+            let messageRaw = JSON.stringify(message);
+            textInput.value = "";
+            ws.send(messageRaw);
+        }
     });
 
     ws.onmessage = async (event) => {
@@ -96,6 +125,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     restartButton.style.visibility = "visible";
                 }
                 break;
+            }
+            case "chat": {
+                const chat = message["content"];
+                textArea.value += message["content"] + "\n";
             }
         }
     }

@@ -18,6 +18,8 @@ main {
 }
 
 #restart-button {
+    border: 0px;
+    padding: 0px;
     visibility: hidden;
 }
 
@@ -53,6 +55,9 @@ main {
 @media(max-width: 620px) {
     main {
         display: block;
+    }
+    header {
+        min-width: 600px;
     }
     #chat-box {
         width: 100%;

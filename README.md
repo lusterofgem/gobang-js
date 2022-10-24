@@ -44,20 +44,20 @@ battle room: nope ❌
 }
 ```
 
+ - restart-game
+
+```
+{
+    "type": "restart-game",
+}
+```
+
  - chat
 
 ```
 {
     "type": "chat",
     "content": "hello there"
-}
-```
-
- - restart-game
-
-```
-{
-    "type": "restart-game",
 }
 ```
 
@@ -69,15 +69,6 @@ battle room: nope ❌
 {
     "type": "put-chess",
     "content": "0,0,black"
-}
-```
-
- - chat
-
-```
-{
-    "type": "chat",
-    "content": "hello there"
 }
 ```
 
@@ -110,6 +101,15 @@ battle room: nope ❌
 {
     "type": "sync-turn",
     "content": "black"
+}
+```
+
+ - chat
+
+```
+{
+    "type": "chat",
+    "content": "hello there"
 }
 ```
 

@@ -41,6 +41,11 @@ for(let i = 0; i < mapSize; ++i) {
 // possible: "", "black", "white"
 let winner = "";
 
+// record logged in players' ip & name
+let loginPlayers = {};
+
+// every room record people which is in the room
+let rooms = [];
 
 wss.on("connection", (ws, req) => {
     const clientIp = req.socket.remoteAddress;

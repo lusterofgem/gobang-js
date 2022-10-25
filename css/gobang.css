@@ -7,7 +7,7 @@ main {
     display: flex;
 }
 
-#naming-page {
+#login-page {
 /*     display:flex; */
     display: none;
     flex-direction: column;
@@ -15,7 +15,7 @@ main {
     align-items: center;
 }
 
-#naming-page-title {
+#login-page-title {
     margin-top: 20vh;
 }
 
@@ -83,7 +83,6 @@ main {
 #battle-page-right-content {
     width: 100%;
     padding-left: 20px;
-/*     display: flex; */
     flex-direction: column;
 }
 

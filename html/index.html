@@ -7,27 +7,104 @@
 </head>
 
 <body>
-    <header>
-        <div id="ingame-top-box">
-            <div id="round-hint-box">
-                <label>Round:&nbsp;&nbsp;</label>
-                <image id="chess-color-image" src="/assets/images/black.png" width="25" height="25"><image>
-            </div>
-            <button id="restart-button">restart</button>
-        </div>
-    </header>
     <main>
-        <!--<div id="server-box">
-            <select></select>
-        </div>-->
-        <div id="checkerboard-box">
-            <canvas id="checkerboard" width="600" height="600"></canvas>
+        <!-- naming page -->
+        <div id="naming-page">
+            <h1 id="naming-page-title">gobang-js</h1>
+            <div id="naming-box">
+                <input id="naming-input" placeholder="name"/>
+                <button id="naming-button">enter</button>
+            </div>
         </div>
-        <div id="chat-box">
-            <textarea id="text-area" disabled></textarea>
-            <div id="text-input-box">
-                <input id="text-input">
-                <button id="text-button">send</button>
+
+        <!-- room page -->
+        <div id="room-page">
+            <div id="join-room-box">
+                <input id="room-id-input" placeholder="room id"/>
+                <button id="room-id-button">join</button>
+            </div>
+            <div id="room-list">
+                <div id="create-room-box" class="room">
+                    <label class="room-label">create a new room?</label>
+                    <button class="room-button">create</button>
+                </div>
+                <div id="room-1-box" class="room">
+                    <label class="room-label">#0</label>
+                    <button class="room-button">join</button>
+                </div>
+                <div id="room-2-box" class="room">
+                    <label class="room-label">#0</label>
+                    <button class="room-button">join</button>
+                </div>
+                <div id="room-3-box" class="room">
+                    <label class="room-label">#0</label>
+                    <button class="room-button">join</button>
+                </div>
+                <div id="room-4-box" class="room">
+                    <label class="room-label">#0</label>
+                    <button class="room-button">join</button>
+                </div>
+                <div id="room-5-box" class="room">
+                    <label class="room-label">#0</label>
+                    <button class="room-button">join</button>
+                </div>
+                <div id="room-6-box" class="room">
+                    <label class="room-label">#0</label>
+                    <button class="room-button">join</button>
+                </div>
+            </div>
+            <div id="page-box">
+                <button id="page-left-button"><</button>
+                <input id="page-input"/>
+                <label>/</label>
+                <label id="max-page-label">10</label>
+                <button id="page-right-button">></button>
+            </div>
+        </div>
+
+        <!-- battle page -->
+        <div id="battle-page">
+            <div id="ingame-top-box">
+                <div id="round-hint-box">
+                    <label>Round:&nbsp;&nbsp;</label>
+                    <image id="chess-color-image" src="/assets/images/black.png" width="25" height="25"><image>
+                </div>
+                <button id="quit-page">quit</button>
+                <button id="restart-button">restart</button>
+            </div>
+            <div id="battle-page-content">
+                <div id="checkerboard-box">
+                    <canvas id="checkerboard" width="600" height="600"></canvas>
+                </div>
+                <div id="battle-page-right-content">
+                    <div id="player-box">
+                        <div id="player1-box">
+                            <label id="player1-label">player1: </label>
+                            <label id="player1-name-label"></label>
+                            <br/>
+                            <image id="player1-color-image" src="/assets/images/black.png" width="25" height="25"><image>
+                            <div class="button-end-container">
+                                <button id="player1-button">join</button>
+                            </div>
+                        </div>
+                        <div id="player2-box">
+                            <label id="player2-label">player2: </label>
+                            <label id="player2-name-label"></label>
+                            <br/>
+                            <image id="player2-color-image" src="/assets/images/white.png" width="25" height="25"><image>
+                            <div class="button-end-container">
+                                <button id="player2-button">join</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="chat-box">
+                        <textarea id="text-area" disabled></textarea>
+                        <div id="text-input-box">
+                            <input id="text-input">
+                            <button id="text-button">send</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </main>

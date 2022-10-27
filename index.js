@@ -14,14 +14,19 @@ app.use('/', express.static(__dirname + '/'));
 
 app.listen(port);
 
-// output message
+// [output message]
+// - login-successful
+// - login-failed
+//
 // - put-chess
 // - sync-checkerboard
 // - sync-winner
 // - sync-turn
 // - chat
 
-// input messae
+// [input message]
+// - login
+//
 // - put-chess
 // - restart-game
 // - chat
@@ -41,8 +46,8 @@ for(let i = 0; i < mapSize; ++i) {
 // possible: "", "black", "white"
 let winner = "";
 
-// record logged in players' ip & name
-let loginPlayers = {};
+// record client ip:port & name to key & value
+let clientsName = {};
 
 // every room record people which is in the room
 let rooms = [];
@@ -50,45 +55,44 @@ let rooms = [];
 wss.on("connection", (ws, req) => {
     const clientIp = req.socket.remoteAddress;
     const clientPort = req.socket.remotePort;
-    const clientName = `${clientIp}:${clientPort}`;
+    const clientIpPort = `${clientIp}:${clientPort}`;
 
     // greeting
-    console.log(`${clientName} joined!`);
-    let message = {};
-    message["type"] = "chat";
-    message["content"] = `${clientName} joined!`;
-    let messageRaw = JSON.stringify(message);
-    wss.clients.forEach((client) => {
-        client.send(messageRaw);
-    });
+    // console.log(`${clientIpPort} joined!`);
+    // let message = {};
+    // message["type"] = "chat";
+    // message["content"] = `${clientIpPort} joined!`;
+    // let messageRaw = JSON.stringify(message);
+    // wss.clients.forEach((client) => {
+    //     client.send(messageRaw);
+    // });
 
     // notify client to sync checkerboard
-    message = {};
-    message["type"] = "sync-checkerboard";
-    message["content"] = checkerboard;
-    messageRaw = JSON.stringify(message);
-    wss.clients.forEach((client) => {
-        client.send(messageRaw);
-    });
+    // message = {};
+    // message["type"] = "sync-checkerboard";
+    // message["content"] = checkerboard;
+    // messageRaw = JSON.stringify(message);
+    // wss.clients.forEach((client) => {
+    //     client.send(messageRaw);
+    // });
 
     // notify client to sync turn
-    messageToClient = {};
-    messageToClient["type"] = "sync-turn";
-    messageToClient["content"] = currentColor
-    messageToClientRaw = JSON.stringify(messageToClient);
-    wss.clients.forEach((client) => {
-        client.send(messageToClientRaw);
-    });
+    // messageToClient = {};
+    // messageToClient["type"] = "sync-turn";
+    // messageToClient["content"] = currentColor
+    // messageToClientRaw = JSON.stringify(messageToClient);
+    // wss.clients.forEach((client) => {
+    //     client.send(messageToClientRaw);
+    // });
 
     // notify client to sync winner
-    message = {};
-    message["type"] = "sync-winner";
-    message["content"] = winner;
-    messageRaw = JSON.stringify(message);
-    wss.clients.forEach((client) => {
-        client.send(messageRaw);
-    });
-
+    // message = {};
+    // message["type"] = "sync-winner";
+    // message["content"] = winner;
+    // messageRaw = JSON.stringify(message);
+    // wss.clients.forEach((client) => {
+    //     client.send(messageRaw);
+    // });
 
     ws.on("message", (buffer) => {
         const messageRaw = buffer.toString();
@@ -96,10 +100,41 @@ wss.on("connection", (ws, req) => {
         const message = JSON.parse(messageRaw);
 
         switch(message["type"]) {
+            case "login": {
+                const requestedName = message["content"].trim();
+                if(requestedName) { // valid name
+                    if(Object.values(clientsName).includes(requestedName)) {
+                        let messageToClient = {};
+                        messageToClient["type"] = "login-failed";
+                        messageToClient["content"] = "name already used"
+                        const messageToClientRaw = JSON.stringify(messageToClient);
+                        wss.clients.forEach((client) => {
+                            client.send(messageToClientRaw);
+                        });
+                    } else {
+                        clientsName[clientIpPort] = requestedName;
+                        let messageToClient = {};
+                        messageToClient["type"] = "login-successfully";
+                        const messageToClientRaw = JSON.stringify(messageToClient);
+                        wss.clients.forEach((client) => {
+                            client.send(messageToClientRaw);
+                        });
+                    }
+                } else { //empty name
+                    let messageToClient = {};
+                    messageToClient["type"] = "login-failed";
+                    messageToClient["content"] = "please input a valid name";const messageToClientRaw = JSON.stringify(messageToClient);
+                    wss.clients.forEach((client) => {
+                        client.send(messageToClientRaw);
+                    });
+                }
+                break;
+            }
             case "chat": {
-                console.log(`${clientName}: [${message["type"]}]${message["content"]}`);
-                let messageToClient = message;
-                messageToClient["content"] = `${clientName}: ${message["content"]}`;
+                console.log(`${clientIpPort}: [${message["type"]}]${message["content"]}`);
+                let messageToClient = {};
+                messageToClient["type"] = "chat";
+                messageToClient["content"] = `${clientIpPort}: ${message["content"]}`;
                 const messageToClientRaw = JSON.stringify(messageToClient);
                 wss.clients.forEach((client) => {
                     client.send(messageToClientRaw);
@@ -125,7 +160,7 @@ wss.on("connection", (ws, req) => {
                 }
 
                 // send put chess message to client
-                console.log(`${clientName}: [${message["type"]}]${message["content"]}`);
+                console.log(`${clientIpPort}: [${message["type"]}]${message["content"]}`);
                 let messageToClient = message;
                 messageToClient["content"] = message["content"] + `,${currentColor}`;
                 let messageToClientRaw = JSON.stringify(messageToClient);
@@ -328,10 +363,14 @@ wss.on("connection", (ws, req) => {
     });
 
     ws.on("close", () => {
-        console.log(`${clientName} leaved!`);
+        console.log(`${clientIpPort} leaved!`);
+
+        // remove the recorded client information
+        delete clientsName[clientIpPort];
+
         let message = {};
         message["type"] = "chat";
-        message["content"] = `${clientName} leaved!`;
+        message["content"] = `${clientIpPort} leaved!`;
         let messageRaw = JSON.stringify(message);
         wss.clients.forEach((client) => {
             client.send(messageRaw)

@@ -1,9 +1,11 @@
-// output message
+// [output message]
+// - login
+//
 // - put-chess
 // - restart-game
 // - chat
 
-// input message
+// [input message]
 // - put-chess
 // - sync-checkerboard
 // - sync-winner
@@ -12,6 +14,13 @@
 
 document.addEventListener("DOMContentLoaded", () => {
     let ws = new WebSocket(`ws://${location.hostname}:8081`);
+
+    let loginPage = document.getElementById("login-page");
+    let loginInput = document.getElementById("login-input");
+    let loginButton = document.getElementById("login-button");
+    let loginHintLabel = document.getElementById("login-hint-label")
+
+    let roomPage = document.getElementById("room-page");
 
     let checkerboard = document.getElementById("checkerboard");
     let context = checkerboard.getContext("2d");
@@ -28,6 +37,26 @@ document.addEventListener("DOMContentLoaded", () => {
     const marginSize = unitSize / 2;
 
     drawCheckerboard();
+
+    loginInput?.addEventListener("keyup", () => {
+        if(event.key == "Enter") {
+            let message = {};
+            message["type"] = "login";
+            message["content"] = loginInput.value;
+            let messageRaw = JSON.stringify(message);
+            loginInput.value = "";
+            ws.send(messageRaw);
+        }
+    });
+
+    loginButton?.addEventListener("click", () => {
+        let message = {};
+        message["type"] = "login";
+        message["content"] = loginInput.value;
+        let messageRaw = JSON.stringify(message);
+        loginInput.value = "";
+        ws.send(messageRaw);
+    });
 
     checkerboard?.addEventListener("click", (event) => {
         const clickX = event.offsetX;
@@ -86,6 +115,17 @@ document.addEventListener("DOMContentLoaded", () => {
         const message = JSON.parse(messageRaw);
 
         switch(message["type"]) {
+            case "login-successfully": {
+                loginPage.style.display = "none";
+                roomPage.style.display = "block";
+                loginHintLabel.value = "";
+                break;
+            }
+            case "login-falied": {
+                let failedMessage = message["content"];
+                loginHintLabel.value = failedMessage;
+                break;
+            }
             case "put-chess": {
                 const point = message["content"].split(",");
                 const x = parseInt(point[0]);

@@ -106,7 +106,7 @@ wss.on("connection", (ws, req) => {
                     if(Object.values(clientsName).includes(requestedName)) {
                         let messageToClient = {};
                         messageToClient["type"] = "login-failed";
-                        messageToClient["content"] = "name already used";
+                        messageToClient["content"] = "name already taken";
                         const messageToClientRaw = JSON.stringify(messageToClient);
                         ws.send(messageToClientRaw);
                     } else {

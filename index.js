@@ -106,27 +106,21 @@ wss.on("connection", (ws, req) => {
                     if(Object.values(clientsName).includes(requestedName)) {
                         let messageToClient = {};
                         messageToClient["type"] = "login-failed";
-                        messageToClient["content"] = "name already used"
+                        messageToClient["content"] = "name already used";
                         const messageToClientRaw = JSON.stringify(messageToClient);
-                        wss.clients.forEach((client) => {
-                            client.send(messageToClientRaw);
-                        });
+                        ws.send(messageToClientRaw);
                     } else {
                         clientsName[clientIpPort] = requestedName;
                         let messageToClient = {};
                         messageToClient["type"] = "login-successfully";
                         const messageToClientRaw = JSON.stringify(messageToClient);
-                        wss.clients.forEach((client) => {
-                            client.send(messageToClientRaw);
-                        });
+                        ws.send(messageToClientRaw);
                     }
                 } else { //empty name
                     let messageToClient = {};
                     messageToClient["type"] = "login-failed";
                     messageToClient["content"] = "please input a valid name";const messageToClientRaw = JSON.stringify(messageToClient);
-                    wss.clients.forEach((client) => {
-                        client.send(messageToClientRaw);
-                    });
+                    ws.send(messageToClientRaw);
                 }
                 break;
             }

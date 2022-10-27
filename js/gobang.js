@@ -118,12 +118,12 @@ document.addEventListener("DOMContentLoaded", () => {
             case "login-successfully": {
                 loginPage.style.display = "none";
                 roomPage.style.display = "block";
-                loginHintLabel.value = "";
+                loginHintLabel.textContent = "";
                 break;
             }
-            case "login-falied": {
+            case "login-failed": {
                 let failedMessage = message["content"];
-                loginHintLabel.value = failedMessage;
+                loginHintLabel.textContent = failedMessage;
                 break;
             }
             case "put-chess": {

@@ -174,7 +174,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 //     <button class="room-button">join</button>
                 // </div>
                 let rooms = message["content"];
-                console.log(rooms); //debug!!
                 for(let roomId in rooms) {
                     if(rooms[roomId] != null) {
                         console.log(rooms[roomId]);

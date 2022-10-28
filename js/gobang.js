@@ -35,6 +35,8 @@ document.addEventListener("DOMContentLoaded", () => {
     let createRoomButton = document.getElementById("create-room-button");
 
     let battlePage = document.getElementById("battle-page");
+    let roomIdJoinInput = document.getElementById("room-id-join-input");
+    let roomIdJoinButton = document.getElementById("room-id-join-button");
     let roomIdLabel = document.getElementById("room-id-label");
     let quitRoomButton = document.getElementById("quit-room-button");
     let checkerboard = document.getElementById("checkerboard");
@@ -53,7 +55,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     drawCheckerboard();
 
-    loginInput?.addEventListener("keyup", () => {
+    loginInput?.addEventListener("keyup", (event) => {
         if(event.key == "Enter") {
             let message = {};
             message["type"] = "login";
@@ -70,6 +72,26 @@ document.addEventListener("DOMContentLoaded", () => {
         message["content"] = loginInput.value;
         let messageRaw = JSON.stringify(message);
         loginInput.value = "";
+        ws.send(messageRaw);
+    });
+
+    roomIdJoinInput?.addEventListener("keyup", (event) => {
+        if(event.key == "Enter") {
+            let message = {};
+            message["type"] = "join-room";
+            message["content"] = roomIdJoinInput.value;
+            let messageRaw = JSON.stringify(message);
+            roomIdJoinInput.value = "";
+            ws.send(messageRaw);
+        }
+    });
+
+    roomIdJoinButton?.addEventListener("click", () => {
+        let message = {};
+        message["type"] = "join-room";
+        message["content"] = roomIdJoinInput.value;
+        let messageRaw = JSON.stringify(message);
+        roomIdJoinInput.value = "";
         ws.send(messageRaw);
     });
 
@@ -118,7 +140,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ws.send(messageRaw);
     });
 
-    textInput?.addEventListener("keyup", () => {
+    textInput?.addEventListener("keyup", (event) => {
         if(event.key == "Enter") {
             if(textInput.value !== "") {
                 let message = {};

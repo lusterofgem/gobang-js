@@ -18,6 +18,9 @@ app.listen(port);
 // - login-successful
 // - login-failed
 //
+// - sync-rooms
+// - join-room
+//
 // - put-chess
 // - sync-checkerboard
 // - sync-winner
@@ -26,6 +29,9 @@ app.listen(port);
 
 // [input message]
 // - login
+//
+// - create-room
+// - join-room
 //
 // - put-chess
 // - restart-game
@@ -49,7 +55,15 @@ let winner = "";
 // record client ip:port & name to key & value
 let clientsName = {};
 
-// every room record people which is in the room
+// record every rooms' information, e.g.
+// [
+//     {
+//         "black": "player1",
+//         "player1": "",
+//         "player2": "",
+//         "spectators": []
+//      },
+// ]
 let rooms = [];
 
 wss.on("connection", (ws, req) => {
@@ -99,29 +113,87 @@ wss.on("connection", (ws, req) => {
         // console.log(messageRaw);
         const message = JSON.parse(messageRaw);
 
+        console.log(`recieved message: ${message["type"]}`); //debug!!
+
         switch(message["type"]) {
             case "login": {
                 const requestedName = message["content"].trim();
                 if(requestedName) { // valid name
-                    if(Object.values(clientsName).includes(requestedName)) {
+                    if(Object.values(clientsName).includes(requestedName)) { // name already taken
                         let messageToClient = {};
                         messageToClient["type"] = "login-failed";
                         messageToClient["content"] = "name already taken";
                         const messageToClientRaw = JSON.stringify(messageToClient);
                         ws.send(messageToClientRaw);
-                    } else {
+                    } else { // successful login
                         clientsName[clientIpPort] = requestedName;
                         let messageToClient = {};
                         messageToClient["type"] = "login-successfully";
-                        const messageToClientRaw = JSON.stringify(messageToClient);
+                        let messageToClientRaw = JSON.stringify(messageToClient);
+                        ws.send(messageToClientRaw);
+
+                        // notify client to sync rooms
+                        messageToClient = {};
+                        messageToClient["type"] = "sync-rooms";
+                        messageToClient["content"] = rooms;
+                        messageToClientRaw = JSON.stringify(messageToClient);
                         ws.send(messageToClientRaw);
                     }
                 } else { //empty name
                     let messageToClient = {};
                     messageToClient["type"] = "login-failed";
-                    messageToClient["content"] = "please input a valid name";const messageToClientRaw = JSON.stringify(messageToClient);
+                    messageToClient["content"] = "please input a valid name";
+                    const messageToClientRaw = JSON.stringify(messageToClient);
                     ws.send(messageToClientRaw);
                 }
+                break;
+            }
+            case "create-room": {
+                // if the player is already in a room, ignore the message
+                for(let roomId in rooms) {
+                    if(rooms[roomId]["spectators"].includes(clientIpPort)) {
+                        return;
+                    }
+                }
+
+                // find the smallest available room id
+                let choosedRoomId = rooms.length;
+                for(let i = 0; i < rooms.length; ++i) {
+                    if(rooms[i] == null) {
+                        choosedRoomId = i;
+                        break;
+                    }
+                }
+
+                rooms[choosedRoomId] = {};
+                rooms[choosedRoomId]["spectators"] = [clientIpPort];
+
+                let messageToClient = {};
+                messageToClient["type"] = "join-room";
+                messageToClient["content"] = choosedRoomId;
+                let messageToClientRaw = JSON.stringify(messageToClient);
+                ws.send(messageToClientRaw);
+
+                break;
+            }
+            case "join-room": {
+                let roomId = message["content"];
+                // if the room is not available, return directly
+                if(rooms[roomId] == null) {
+                    return;
+                }
+
+                if(rooms[roomId]["spectators"] == null) {
+                    rooms[roomId]["spectators"] = [];
+                }
+                rooms[roomId]["spectators"].push(clientIpPort);
+
+                let messageToClient = {};
+                messageToClient["type"] = "join-room";
+                messageToClient["content"] = roomId;
+                let messageToClientRaw = JSON.stringify(messageToClient);
+                ws.send(messageToClientRaw);
+
                 break;
             }
             case "chat": {
@@ -361,6 +433,24 @@ wss.on("connection", (ws, req) => {
 
         // remove the recorded client information
         delete clientsName[clientIpPort];
+        for(let roomId in rooms) {
+            if(rooms[roomId].black == clientIpPort) {
+                delete rooms[roomId].black;
+            }
+            if(rooms[roomId].player1 == clientIpPort) {
+                delete rooms[roomId].player1;
+            }
+            if(rooms[roomId].player2 == clientIpPort) {
+                delete rooms[roomId].player2;
+            }
+            if(rooms[roomId]["spectators"].includes(clientIpPort)) {
+                rooms[roomId]["spectators"].splice(rooms[roomId]["spectators"].indexOf(clientIpPort), 1);
+                if(rooms[roomId]["spectators"].length == 0) {
+                    delete rooms[roomId];
+                }
+                break;
+            }
+        }
 
         let message = {};
         message["type"] = "chat";

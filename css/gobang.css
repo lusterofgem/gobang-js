@@ -36,12 +36,11 @@ main {
 }
 
 #room-list {
-    min-height: 50vh;
     margin: 10px;
     border: 1px solid;
 }
 
-.room {
+.room-box {
     display: flex;
     height: 10vh;
     margin: 5px;
@@ -60,20 +59,6 @@ main {
     width: 10vh;
     height: 10vh;
     font-size: 2vh;
-}
-
-#page-box {
-    display: flex;
-    justify-content: center;
-}
-
-#page-input {
-    width: 50px;
-    border: none;
-}
-
-#max-page-label {
-
 }
 
 #battle-page {

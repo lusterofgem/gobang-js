@@ -1,11 +1,20 @@
 // [output message]
 // - login
 //
+// - create-room
+// - join-room
+//
 // - put-chess
 // - restart-game
 // - chat
 
 // [input message]
+// - login-successful
+// - login-failed
+//
+// - sync-rooms
+// - join-room
+//
 // - put-chess
 // - sync-checkerboard
 // - sync-winner
@@ -21,7 +30,10 @@ document.addEventListener("DOMContentLoaded", () => {
     let loginHintLabel = document.getElementById("login-hint-label")
 
     let roomPage = document.getElementById("room-page");
+    let roomList = document.getElementById("room-list")
+    let createRoomButton = document.getElementById("create-room-button");
 
+    let battlePage = document.getElementById("battle-page")
     let checkerboard = document.getElementById("checkerboard");
     let context = checkerboard.getContext("2d");
     let chessColorImage = document.getElementById("chess-color-image");
@@ -55,6 +67,13 @@ document.addEventListener("DOMContentLoaded", () => {
         message["content"] = loginInput.value;
         let messageRaw = JSON.stringify(message);
         loginInput.value = "";
+        ws.send(messageRaw);
+    });
+
+    createRoomButton?.addEventListener("click", () => {
+        let message = {};
+        message["type"] = "create-room";
+        let messageRaw = JSON.stringify(message);
         ws.send(messageRaw);
     });
 
@@ -124,6 +143,47 @@ document.addEventListener("DOMContentLoaded", () => {
             case "login-failed": {
                 let failedMessage = message["content"];
                 loginHintLabel.textContent = failedMessage;
+                break;
+            }
+            case "sync-rooms": {
+                // <div class="room">
+                //     <label class="room-label">0</label>
+                //     <button class="room-button">join</button>
+                // </div>
+                let rooms = message["content"];
+                for(let roomId in rooms) {
+                    if(rooms[roomId] != null) {
+                        let roomBox = document.createElement("div");
+                        let roomLabel = document.createElement("label");
+                        let roomButton = document.createElement("button");
+
+                        roomBox.classList.add("room-box");
+                        roomLabel.classList.add("room-label");
+                        roomLabel.innerText = roomId;
+                        roomButton.innerText = "join";
+                        roomButton.classList.add("room-button");
+                        // roomButton.id = `room-button-${roomId}`;
+                        roomButton.addEventListener("click", () => {
+                            let message = {};
+                            message["type"] = "join-room";
+                            message["content"] = roomId;
+                            let messageRaw = JSON.stringify(message);
+                            ws.send(messageRaw);
+                        });
+
+                        roomList.append(roomBox);
+                        roomBox.append(roomLabel);
+                        roomBox.append(roomButton);
+                    }
+                }
+                break;
+            }
+            case "join-room": {
+                let roomId = message["content"];
+                console.log(roomPage.style); //debug!!
+                roomPage.style.display = "none";
+                battlePage.style.display = "block";
+
                 break;
             }
             case "put-chess": {

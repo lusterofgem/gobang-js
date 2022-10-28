@@ -35,6 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let createRoomButton = document.getElementById("create-room-button");
 
     let battlePage = document.getElementById("battle-page");
+    let roomIdLabel = document.getElementById("room-id-label");
     let quitRoomButton = document.getElementById("quit-room-button");
     let checkerboard = document.getElementById("checkerboard");
     let context = checkerboard.getContext("2d");
@@ -145,6 +146,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const messageRaw = await event.data;
         const message = JSON.parse(messageRaw);
 
+        console.log(`recieved message: ${message["type"]}`) //debug!!
+
         switch(message["type"]) {
             case "login-successfully": {
                 loginPage.style.display = "none";
@@ -158,13 +161,23 @@ document.addEventListener("DOMContentLoaded", () => {
                 break;
             }
             case "sync-rooms": {
+                // clear all rooms
+                let roomBoxes = roomList.children;
+                for(let i = roomBoxes.length - 1; i >= 0 ; --i) {
+                    if(roomBoxes[i].id != "create-room-box") {
+                        roomBoxes[i].remove();
+                    }
+                }
+
                 // <div class="room">
                 //     <label class="room-label">0</label>
                 //     <button class="room-button">join</button>
                 // </div>
                 let rooms = message["content"];
+                console.log(rooms); //debug!!
                 for(let roomId in rooms) {
                     if(rooms[roomId] != null) {
+                        console.log(rooms[roomId]);
                         let roomBox = document.createElement("div");
                         let roomLabel = document.createElement("label");
                         let roomButton = document.createElement("button");
@@ -194,6 +207,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 let roomId = message["content"];
                 roomPage.style.display = "none";
                 battlePage.style.display = "block";
+                roomIdLabel.innerText = `room id: ${roomId}`;
                 textArea.value = "";
 
                 break;

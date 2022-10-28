@@ -3,6 +3,7 @@
 //
 // - create-room
 // - join-room
+// - quit-room
 //
 // - put-chess
 // - restart-game
@@ -30,10 +31,11 @@ document.addEventListener("DOMContentLoaded", () => {
     let loginHintLabel = document.getElementById("login-hint-label")
 
     let roomPage = document.getElementById("room-page");
-    let roomList = document.getElementById("room-list")
+    let roomList = document.getElementById("room-list");
     let createRoomButton = document.getElementById("create-room-button");
 
-    let battlePage = document.getElementById("battle-page")
+    let battlePage = document.getElementById("battle-page");
+    let quitRoomButton = document.getElementById("quit-room-button");
     let checkerboard = document.getElementById("checkerboard");
     let context = checkerboard.getContext("2d");
     let chessColorImage = document.getElementById("chess-color-image");
@@ -75,6 +77,16 @@ document.addEventListener("DOMContentLoaded", () => {
         message["type"] = "create-room";
         let messageRaw = JSON.stringify(message);
         ws.send(messageRaw);
+    });
+
+    quitRoomButton?.addEventListener("click", () => {
+        let message = {};
+        message["type"] = "quit-room";
+        let messageRaw = JSON.stringify(message);
+        ws.send(messageRaw);
+
+        battlePage.style.display = "none";
+        roomPage.style.display = "block";
     });
 
     checkerboard?.addEventListener("click", (event) => {
@@ -180,9 +192,9 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             case "join-room": {
                 let roomId = message["content"];
-                console.log(roomPage.style); //debug!!
                 roomPage.style.display = "none";
                 battlePage.style.display = "block";
+                textArea.value = "";
 
                 break;
             }

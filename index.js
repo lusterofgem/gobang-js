@@ -32,6 +32,7 @@ app.listen(port);
 //
 // - create-room
 // - join-room
+// - quit-room
 //
 // - put-chess
 // - restart-game
@@ -212,6 +213,45 @@ wss.on("connection", (ws, req) => {
 
                 break;
             }
+            case "quit-room": {
+                let roomId = null;
+                for(let i = 0; i < rooms.length; ++i) {
+                    if(rooms[i] != null) {
+                        if(rooms[i]["players"].includes(clientIpPort)) {
+                            roomId = i;
+                        }
+                    }
+                }
+
+                // if the client is not in any room, return directly
+                if(roomId == null) {
+                    return;
+                }
+
+                // remove client from room
+                if(rooms[roomId].black == clientIpPort) {
+                    delete rooms[roomId].black;
+                }
+                if(rooms[roomId].player1 == clientIpPort) {
+                    delete rooms[roomId].player1;
+                }
+                if(rooms[roomId].player2 == clientIpPort) {
+                    delete rooms[roomId].player2;
+                }
+                rooms[roomId]["players"].splice(rooms[roomId]["players"].indexOf(clientIpPort), 1);
+                if(rooms[roomId]["players"].length == 0) {
+                    delete rooms[roomId];
+                }
+
+                // notify client to sync rooms
+                let messageToClient = {};
+                messageToClient["type"] = "sync-rooms";
+                messageToClient["content"] = rooms;
+                let messageToClientRaw = JSON.stringify(messageToClient);
+                ws.send(messageToClientRaw);
+
+                break;
+            }
             case "chat": {
                 // send chat to player in the same room
                 let messageToClient = {};
@@ -220,8 +260,10 @@ wss.on("connection", (ws, req) => {
                 const messageToClientRaw = JSON.stringify(messageToClient);
                 let roomId = null;
                 for(let i = 0; i < rooms.length; ++i) {
-                    if(rooms[i]["players"].includes(clientIpPort)) {
-                        roomId = i;
+                    if(rooms[i] != null) {
+                        if(rooms[i]["players"].includes(clientIpPort)) {
+                            roomId = i;
+                        }
                     }
                 }
                 wss.clients.forEach((client) => {
@@ -459,8 +501,10 @@ wss.on("connection", (ws, req) => {
         // say goodbye to all players in the same room
         let roomId = null;
         for(let i = 0; i < rooms.length; ++i) {
-            if(rooms[i]["players"].includes(clientIpPort)) {
-                roomId = i;
+            if(rooms[i] != null) {
+                if(rooms[i]["players"].includes(clientIpPort)) {
+                    roomId = i;
+                }
             }
         }
         if(roomId != null) {
@@ -476,7 +520,7 @@ wss.on("connection", (ws, req) => {
             });
         }
 
-        // remove the recorded client information
+        // remove client from room
         if(roomId != null) {
             if(rooms[roomId].black == clientIpPort) {
                 delete rooms[roomId].black;
@@ -492,6 +536,7 @@ wss.on("connection", (ws, req) => {
                 delete rooms[roomId];
             }
         }
+        // remove client ip:port and name record from object
         delete clientsName[clientIpPort];
     });
 });

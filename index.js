@@ -454,11 +454,30 @@ wss.on("connection", (ws, req) => {
     });
 
     ws.on("close", () => {
-        console.log(`${clientIpPort} leaved!`);
+        console.log(`${clientIpPort} disconnected!`);
+
+        // say goodbye to all players in the same room
+        let roomId = null;
+        for(let i = 0; i < rooms.length; ++i) {
+            if(rooms[i]["players"].includes(clientIpPort)) {
+                roomId = i;
+            }
+        }
+        if(roomId != null) {
+            let messageToClient = {};
+            messageToClient["type"] = "chat";
+            messageToClient["content"] = `${clientsName[clientIpPort]} leaved!`;
+            let messageToClientRaw = JSON.stringify(messageToClient);
+            wss.clients.forEach((client) => {
+                let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
+                if(rooms[roomId]["players"].includes(ipPort)) {
+                    client.send(messageToClientRaw);
+                }
+            });
+        }
 
         // remove the recorded client information
-        delete clientsName[clientIpPort];
-        for(let roomId in rooms) {
+        if(roomId != null) {
             if(rooms[roomId].black == clientIpPort) {
                 delete rooms[roomId].black;
             }
@@ -468,21 +487,11 @@ wss.on("connection", (ws, req) => {
             if(rooms[roomId].player2 == clientIpPort) {
                 delete rooms[roomId].player2;
             }
-            if(rooms[roomId]["players"].includes(clientIpPort)) {
-                rooms[roomId]["players"].splice(rooms[roomId]["players"].indexOf(clientIpPort), 1);
-                if(rooms[roomId]["players"].length == 0) {
-                    delete rooms[roomId];
-                }
-                break;
+            rooms[roomId]["players"].splice(rooms[roomId]["players"].indexOf(clientIpPort), 1);
+            if(rooms[roomId]["players"].length == 0) {
+                delete rooms[roomId];
             }
         }
-
-        let message = {};
-        message["type"] = "chat";
-        message["content"] = `${clientIpPort} leaved!`;
-        let messageRaw = JSON.stringify(message);
-        wss.clients.forEach((client) => {
-            client.send(messageRaw)
-        });
+        delete clientsName[clientIpPort];
     });
 });

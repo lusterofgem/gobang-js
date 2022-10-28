@@ -61,7 +61,7 @@ let clientsName = {};
 //         "black": "player1",
 //         "player1": "",
 //         "player2": "",
-//         "spectators": []
+//         "players": []
 //      },
 // ]
 let rooms = [];
@@ -71,15 +71,7 @@ wss.on("connection", (ws, req) => {
     const clientPort = req.socket.remotePort;
     const clientIpPort = `${clientIp}:${clientPort}`;
 
-    // greeting
-    // console.log(`${clientIpPort} joined!`);
-    // let message = {};
-    // message["type"] = "chat";
-    // message["content"] = `${clientIpPort} joined!`;
-    // let messageRaw = JSON.stringify(message);
-    // wss.clients.forEach((client) => {
-    //     client.send(messageRaw);
-    // });
+    console.log(`${clientIpPort} connected!`);
 
     // notify client to sync checkerboard
     // message = {};
@@ -151,7 +143,7 @@ wss.on("connection", (ws, req) => {
             case "create-room": {
                 // if the player is already in a room, ignore the message
                 for(let roomId in rooms) {
-                    if(rooms[roomId]["spectators"].includes(clientIpPort)) {
+                    if(rooms[roomId]["players"].includes(clientIpPort)) {
                         return;
                     }
                 }
@@ -166,13 +158,25 @@ wss.on("connection", (ws, req) => {
                 }
 
                 rooms[choosedRoomId] = {};
-                rooms[choosedRoomId]["spectators"] = [clientIpPort];
+                rooms[choosedRoomId]["players"] = [clientIpPort];
 
                 let messageToClient = {};
                 messageToClient["type"] = "join-room";
                 messageToClient["content"] = choosedRoomId;
                 let messageToClientRaw = JSON.stringify(messageToClient);
                 ws.send(messageToClientRaw);
+
+                // greeting to player in the same room
+                messageToClient = {};
+                messageToClient["type"] = "chat";
+                messageToClient["content"] = `${clientsName[clientIpPort]} joined!`;
+                messageToClientRaw = JSON.stringify(messageToClient);
+                wss.clients.forEach((client) => {
+                    let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
+                    if(rooms[choosedRoomId]["players"].includes(ipPort)) {
+                        client.send(messageToClientRaw);
+                    }
+                });
 
                 break;
             }
@@ -183,10 +187,10 @@ wss.on("connection", (ws, req) => {
                     return;
                 }
 
-                if(rooms[roomId]["spectators"] == null) {
-                    rooms[roomId]["spectators"] = [];
+                if(rooms[roomId]["players"] == null) {
+                    rooms[roomId]["players"] = [];
                 }
-                rooms[roomId]["spectators"].push(clientIpPort);
+                rooms[roomId]["players"].push(clientIpPort);
 
                 let messageToClient = {};
                 messageToClient["type"] = "join-room";
@@ -194,16 +198,37 @@ wss.on("connection", (ws, req) => {
                 let messageToClientRaw = JSON.stringify(messageToClient);
                 ws.send(messageToClientRaw);
 
+                // greeting to player in the same room
+                messageToClient = {};
+                messageToClient["type"] = "chat";
+                messageToClient["content"] = `${clientsName[clientIpPort]} joined!`;
+                messageToClientRaw = JSON.stringify(messageToClient);
+                wss.clients.forEach((client) => {
+                    let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
+                    if(rooms[roomId]["players"].includes(ipPort)) {
+                        client.send(messageToClientRaw);
+                    }
+                });
+
                 break;
             }
             case "chat": {
-                console.log(`${clientIpPort}: [${message["type"]}]${message["content"]}`);
+                // send chat to player in the same room
                 let messageToClient = {};
                 messageToClient["type"] = "chat";
-                messageToClient["content"] = `${clientIpPort}: ${message["content"]}`;
+                messageToClient["content"] = `${clientsName[clientIpPort]}: ${message["content"]}`;
                 const messageToClientRaw = JSON.stringify(messageToClient);
+                let roomId = null;
+                for(let i = 0; i < rooms.length; ++i) {
+                    if(rooms[i]["players"].includes(clientIpPort)) {
+                        roomId = i;
+                    }
+                }
                 wss.clients.forEach((client) => {
-                    client.send(messageToClientRaw);
+                    let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
+                    if(rooms[roomId]["players"].includes(ipPort)) {
+                        client.send(messageToClientRaw);
+                    }
                 });
                 break;
             }
@@ -443,9 +468,9 @@ wss.on("connection", (ws, req) => {
             if(rooms[roomId].player2 == clientIpPort) {
                 delete rooms[roomId].player2;
             }
-            if(rooms[roomId]["spectators"].includes(clientIpPort)) {
-                rooms[roomId]["spectators"].splice(rooms[roomId]["spectators"].indexOf(clientIpPort), 1);
-                if(rooms[roomId]["spectators"].length == 0) {
+            if(rooms[roomId]["players"].includes(clientIpPort)) {
+                rooms[roomId]["players"].splice(rooms[roomId]["players"].indexOf(clientIpPort), 1);
+                if(rooms[roomId]["players"].length == 0) {
                     delete rooms[roomId];
                 }
                 break;

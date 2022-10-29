@@ -50,13 +50,13 @@ const mapSize = 15;
 // record client ip:port & name to key & value
 let clientsName = {};
 
-let checkerboard = [];
-for(let i = 0; i < mapSize; ++i) {
-    checkerboard[i] = [];
-    for(let j = 0; j < mapSize; ++j) {
-        checkerboard[i][j] = "";
-    }
-}
+// let checkerboard = [];
+// for(let i = 0; i < mapSize; ++i) {
+//     checkerboard[i] = [];
+//     for(let j = 0; j < mapSize; ++j) {
+//         checkerboard[i][j] = "";
+//     }
+// }
 // record every rooms' information, e.g.
 // [
 //     {
@@ -382,25 +382,38 @@ wss.on("connection", (ws, req) => {
                 break;
             }
             case "restart-game": {
+                let roomId = null;
+                for(let i = 0; i < rooms.length; ++i) {
+                    if(rooms[i] != null) {
+                        if(rooms[i]["players"].includes(clientIpPort)) {
+                            roomId = i;
+                        }
+                    }
+                }
+
+                // if the game is not over, return directly
                 if(rooms[roomId]["winner"] === "") {
                     return;
                 }
 
+                // reset the game
                 rooms[roomId]["winner"] = "";
-
-                currentColor = "black";
+                rooms[roomId]["player1Ready"] = false;
+                rooms[roomId]["player2Ready"] = false;
+                rooms[roomId]["currentRound"] = (Math.random() > 0.5) ? "player1" : "player2";
+                rooms[roomId]["player1Color"] = rooms[roomId]["currentRound"] == "player1" ? "black" : "white";
 
                 // clear checkerboard
                 for(let i = 0; i < mapSize; ++i) {
                     for(let j = 0; j < mapSize; ++j) {
-                        checkerboard[i][j] = ""
+                        rooms[roomId]["checkerboard"][i][j] = ""
                     }
                 }
 
                 // notify client to sync checkerboard
                 let message = {};
                 message["type"] = "sync-checkerboard";
-                message["content"] = checkerboard;
+                message["content"] = rooms[roomId]["checkerboard"];
                 let messageRaw = JSON.stringify(message);
                 wss.clients.forEach((client) => {
                     client.send(messageRaw);
@@ -507,7 +520,7 @@ wss.on("connection", (ws, req) => {
                 wss.clients.forEach((client) => {
                     let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
                     if(rooms[roomId]["players"].includes(ipPort)) {
-                        checkerboard[x][y] = currentColor;
+                        rooms[roomId]["checkerboard"][x][y] = currentColor;
                         client.send(messageToClientRaw);
                     }
                 });

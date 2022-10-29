@@ -123,6 +123,13 @@ document.addEventListener("DOMContentLoaded", () => {
         roomPage.style.display = "block";
     });
 
+    restartButton?.addEventListener("click", () => {
+        let message = {};
+        message["type"] = "restart-game";
+        let messageRaw = JSON.stringify(message);
+        ws.send(messageRaw);
+    });
+
     checkerboard?.addEventListener("click", (event) => {
         const clickX = event.offsetX;
         const clickY = event.offsetY;
@@ -144,9 +151,13 @@ document.addEventListener("DOMContentLoaded", () => {
         ws.send(messageRaw);
     });
 
-    restartButton?.addEventListener("click", () => {
+    player1ReadyButton?.addEventListener("click", () => {
+
+    });
+
+    player1QuitButton?.addEventListener("click", () => {
         let message = {};
-        message["type"] = "restart-game";
+        message["type"] = "quit-player1";
         let messageRaw = JSON.stringify(message);
         ws.send(messageRaw);
     });
@@ -154,6 +165,17 @@ document.addEventListener("DOMContentLoaded", () => {
     player1Button?.addEventListener("click", () => {
         let message = {};
         message["type"] = "request-player1";
+        let messageRaw = JSON.stringify(message);
+        ws.send(messageRaw);
+    });
+
+    player2ReadyButton?.addEventListener("click", () => {
+
+    });
+
+    player2QuitButton?.addEventListener("click", () => {
+        let message = {};
+        message["type"] = "quit-player2";
         let messageRaw = JSON.stringify(message);
         ws.send(messageRaw);
     });
@@ -290,6 +312,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 break;
             }
             case "sync-player-slot": {
+                console.dir(message["content"]); //debug!!
                 let player1Name = message["content"]["player1"] ?? "";
                 let player2Name = message["content"]["player2"] ?? "";
                 let clientIsPlayer1 = message["content"]["clientIsPlayer1"] ?? false;

@@ -40,6 +40,8 @@ app.listen(port);
 // - chat
 // - request-player1
 // - request-player2
+// - quit-player1
+// - quit-player2
 
 const wss = new ws.WebSocketServer({port: wsPort});
 
@@ -331,8 +333,8 @@ wss.on("connection", (ws, req) => {
                             messageToClient["content"] = {};
                             messageToClient["content"]["player1"] = clientsName[rooms[roomId]["player1"]];
                             messageToClient["content"]["player2"] = clientsName[rooms[roomId]["player2"]];
-                            messageToClient["content"]["clientIsPlayer1"] = rooms[roomId]["player1"] === clientIpPort;
-                            messageToClient["content"]["clientIsPlayer2"] = rooms[roomId]["player2"] === clientIpPort;
+                            messageToClient["content"]["clientIsPlayer1"] = rooms[roomId]["player1"] === ipPort;
+                            messageToClient["content"]["clientIsPlayer2"] = rooms[roomId]["player2"] === ipPort;
                             messageToClient["content"]["player1Ready"] = rooms[roomId]["player1Ready"];
                             messageToClient["content"]["player2Ready"] = rooms[roomId]["player2Ready"];
                             let messageToClientRaw = JSON.stringify(messageToClient);
@@ -675,8 +677,8 @@ wss.on("connection", (ws, req) => {
                         messageToClient["content"] = {};
                         messageToClient["content"]["player1"] = clientsName[rooms[roomId]["player1"]];
                         messageToClient["content"]["player2"] = clientsName[rooms[roomId]["player2"]];
-                        messageToClient["content"]["clientIsPlayer1"] = rooms[roomId]["player1"] === clientIpPort;
-                        messageToClient["content"]["clientIsPlayer2"] = rooms[roomId]["player2"] === clientIpPort;
+                        messageToClient["content"]["clientIsPlayer1"] = rooms[roomId]["player1"] === ipPort;
+                        messageToClient["content"]["clientIsPlayer2"] = rooms[roomId]["player2"] === ipPort;
                         messageToClient["content"]["player1Ready"] = rooms[roomId]["player1Ready"];
                         messageToClient["content"]["player2Ready"] = rooms[roomId]["player2Ready"];
                         let messageToClientRaw = JSON.stringify(messageToClient);
@@ -687,6 +689,47 @@ wss.on("connection", (ws, req) => {
                 break;
             }
             case "quit-player1": {
+                let roomId = null;
+                for(let i = 0; i < rooms.length; ++i) {
+                    if(rooms[i] != null) {
+                        if(rooms[i]["players"].includes(clientIpPort)) {
+                            roomId = i;
+                        }
+                    }
+                }
+
+                // if the client is not in any room, return directly
+                if(roomId == null) {
+                    return;
+                }
+
+                // if client is not player1, return
+                if(rooms[roomId]["player1"] !== clientIpPort) {
+                    return;
+                }
+
+                // remove player1 information
+                delete rooms[roomId]["player1"];
+                rooms[roomId]["player1Ready"] = false;
+
+                // notify all clients in the same room to update player slot
+                wss.clients.forEach((client) => {
+                    let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
+                    if(rooms[roomId]["players"].includes(ipPort)) {
+                        let messageToClient = {};
+                        messageToClient["type"] = "sync-player-slot";
+                        messageToClient["content"] = {};
+                        messageToClient["content"]["player1"] = clientsName[rooms[roomId]["player1"]];
+                        messageToClient["content"]["player2"] = clientsName[rooms[roomId]["player2"]];
+                        messageToClient["content"]["clientIsPlayer1"] = rooms[roomId]["player1"] === ipPort;
+                        messageToClient["content"]["clientIsPlayer2"] = rooms[roomId]["player2"] === ipPort;
+                        messageToClient["content"]["player1Ready"] = rooms[roomId]["player1Ready"];
+                        messageToClient["content"]["player2Ready"] = rooms[roomId]["player2Ready"];
+                        let messageToClientRaw = JSON.stringify(messageToClient);
+                        client.send(messageToClientRaw);
+                    }
+                });
+
                 break;
             }
             case "request-player2": {
@@ -726,8 +769,8 @@ wss.on("connection", (ws, req) => {
                         messageToClient["content"] = {};
                         messageToClient["content"]["player1"] = clientsName[rooms[roomId]["player1"]];
                         messageToClient["content"]["player2"] = clientsName[rooms[roomId]["player2"]];
-                        messageToClient["content"]["clientIsPlayer1"] = rooms[roomId]["player1"] === clientIpPort;
-                        messageToClient["content"]["clientIsPlayer2"] = rooms[roomId]["player2"] === clientIpPort;
+                        messageToClient["content"]["clientIsPlayer1"] = rooms[roomId]["player1"] === ipPort;
+                        messageToClient["content"]["clientIsPlayer2"] = rooms[roomId]["player2"] === ipPort;
                         messageToClient["content"]["player1Ready"] = rooms[roomId]["player1Ready"];
                         messageToClient["content"]["player2Ready"] = rooms[roomId]["player2Ready"];
                         let messageToClientRaw = JSON.stringify(messageToClient);
@@ -738,6 +781,47 @@ wss.on("connection", (ws, req) => {
                 break;
             }
             case "quit-player2": {
+                let roomId = null;
+                for(let i = 0; i < rooms.length; ++i) {
+                    if(rooms[i] != null) {
+                        if(rooms[i]["players"].includes(clientIpPort)) {
+                            roomId = i;
+                        }
+                    }
+                }
+
+                // if the client is not in any room, return directly
+                if(roomId == null) {
+                    return;
+                }
+
+                // if client is not player2, return
+                if(rooms[roomId]["player2"] !== clientIpPort) {
+                    return;
+                }
+
+                // remove player2 information
+                delete rooms[roomId]["player2"];
+                rooms[roomId]["player2Ready"] = false;
+
+                // notify all clients in the same room to update player slot
+                wss.clients.forEach((client) => {
+                    let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
+                    if(rooms[roomId]["players"].includes(ipPort)) {
+                        let messageToClient = {};
+                        messageToClient["type"] = "sync-player-slot";
+                        messageToClient["content"] = {};
+                        messageToClient["content"]["player1"] = clientsName[rooms[roomId]["player1"]];
+                        messageToClient["content"]["player2"] = clientsName[rooms[roomId]["player2"]];
+                        messageToClient["content"]["clientIsPlayer1"] = rooms[roomId]["player1"] === ipPort;
+                        messageToClient["content"]["clientIsPlayer2"] = rooms[roomId]["player2"] === ipPort;
+                        messageToClient["content"]["player1Ready"] = rooms[roomId]["player1Ready"];
+                        messageToClient["content"]["player2Ready"] = rooms[roomId]["player2Ready"];
+                        let messageToClientRaw = JSON.stringify(messageToClient);
+                        client.send(messageToClientRaw);
+                    }
+                });
+
                 break;
             }
             case "chat": {
@@ -792,14 +876,14 @@ wss.on("connection", (ws, req) => {
 
         // remove client from room
         if(roomId != null) {
-            if(rooms[roomId].black == clientIpPort) {
-                delete rooms[roomId].black;
+            delete rooms[roomId]["player1Color"];
+            if(rooms[roomId]["player1"] == clientIpPort) {
+                delete rooms[roomId]["player1"];
+                rooms[roomId]["player1Ready"] = false;
             }
-            if(rooms[roomId].player1 == clientIpPort) {
-                delete rooms[roomId].player1;
-            }
-            if(rooms[roomId].player2 == clientIpPort) {
-                delete rooms[roomId].player2;
+            if(rooms[roomId]["player2"] == clientIpPort) {
+                delete rooms[roomId]["player2"];
+                rooms[roomId]["player2Ready"] = false;
             }
             rooms[roomId]["players"].splice(rooms[roomId]["players"].indexOf(clientIpPort), 1);
             if(rooms[roomId]["players"].length == 0) {
@@ -817,8 +901,8 @@ wss.on("connection", (ws, req) => {
                     messageToClient["content"] = {};
                     messageToClient["content"]["player1"] = clientsName[rooms[roomId]["player1"]];
                     messageToClient["content"]["player2"] = clientsName[rooms[roomId]["player2"]];
-                    messageToClient["content"]["clientIsPlayer1"] = rooms[roomId]["player1"] === clientIpPort;
-                    messageToClient["content"]["clientIsPlayer2"] = rooms[roomId]["player2"] === clientIpPort;
+                    messageToClient["content"]["clientIsPlayer1"] = rooms[roomId]["player1"] === ipPort;
+                    messageToClient["content"]["clientIsPlayer2"] = rooms[roomId]["player2"] === ipPort;
                     messageToClient["content"]["player1Ready"] = rooms[roomId]["player1Ready"];
                     messageToClient["content"]["player2Ready"] = rooms[roomId]["player2Ready"];
                     let messageToClientRaw = JSON.stringify(messageToClient);

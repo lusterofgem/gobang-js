@@ -25,13 +25,13 @@ The message is a json (stringifed object), the structure is like this:
 
 chat-box: ready ✔️
 
-checkerboard: ready ✔️
+checkerboard: in-progress 🚧
 
-identify different players: nope ❌
+identify different players: ready ✔️
 
-hub: nope ❌
+hub: ready ✔️
 
-battle room: nope ❌
+battle room: ready ✔️
 
 ## client to server message
  

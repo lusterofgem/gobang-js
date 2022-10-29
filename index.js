@@ -410,22 +410,34 @@ wss.on("connection", (ws, req) => {
                     }
                 }
 
-                // notify client to sync checkerboard
-                let message = {};
-                message["type"] = "sync-checkerboard";
-                message["content"] = rooms[roomId]["checkerboard"];
-                let messageRaw = JSON.stringify(message);
+                // hint the game is restart
+                let messageToClient = {};
+                messageToClient["type"] = "chat";
+                messageToClient["content"] = "[server] game restart!";
+                let messageToClientRaw = JSON.stringify(messageToClient);
                 wss.clients.forEach((client) => {
-                    client.send(messageRaw);
+                    let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
+                    if(rooms[roomId]["players"].includes(ipPort)) {
+                        client.send(messageToClientRaw);
+                    }
+                });
+
+                // notify client to sync checkerboard
+                messageToClient = {};
+                messageToClient["type"] = "sync-checkerboard";
+                messageToClient["content"] = rooms[roomId]["checkerboard"];
+                messageToClientRaw = JSON.stringify(messageToClient);
+                wss.clients.forEach((client) => {
+                    client.send(messageToClientRaw);
                 });
 
                 // notify client to sync winner
-                message = {};
-                message["type"] = "sync-winner";
-                message["content"] = rooms[roomId]["winner"];
-                messageRaw = JSON.stringify(message);
+                messageToClient = {};
+                messageToClient["type"] = "sync-winner";
+                messageToClient["content"] = rooms[roomId]["winner"];
+                messageToClientRaw = JSON.stringify(messageToClient);
                 wss.clients.forEach((client) => {
-                    client.send(messageRaw);
+                    client.send(messageToClientRaw);
                 });
 
                 // notify client to sync current color

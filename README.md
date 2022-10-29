@@ -17,9 +17,9 @@ The message is a json (stringifed object), the structure is like this:
 
 ## using port
 
- - express: 8080
+ - http: 8080
 
- - ws: 8081
+ - websocket: 8081
 
 ## status
 

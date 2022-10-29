@@ -441,22 +441,37 @@ wss.on("connection", (ws, req) => {
                     return;
                 }
 
+                console.log("debugging 1"); //debug!!
+
                 // game not started, return directly
                 if(rooms[roomId]["winner"] == null) {
                     return;
                 }
 
-                // game over, return directly
+                console.log("debugging 2"); //debug!!
+
+                // already game over, return directly
                 if(rooms[roomId]["winner"] === "player1" || rooms[roomId]["winner"] === "player2" || rooms[roomId]["winner"] === "draw") {
                     return;
                 }
+
+                console.log("debugging 3"); //debug!!
+
+                // if the client is not the current round player, return directly
+                console.log(rooms[roomId]["currentRound"]);
+                console.log(rooms[roomId][rooms[roomId]["currentRound"]]);
+                if(rooms[roomId][rooms[roomId]["currentRound"]] !== clientIpPort) {
+                    return;
+                }
+
+                console.log("debugging 4"); //debug!!
 
                 const point = message["content"].split(",");
                 const x = parseInt(point[0]);
                 const y = parseInt(point[1]);
 
                 // check if the point is valid
-                if(!Number.isInteger(x) || !Number.isInteger(y)) {
+                if(!Number.isInteger(x) || !Number.isInteger(y) && x >= 0 && y >= 0 && x < mapSize && y < mapSize) {
                     return;
                 }
 
@@ -465,21 +480,26 @@ wss.on("connection", (ws, req) => {
                     return;
                 }
 
-                // send put chess message to player in the same room
+                // get current color
                 let currentColor;
                 if(rooms[roomId]["currentRound"] == "player1") {
-                    if("player1Color" == "black") {
+                    if(rooms[roomId]["player1Color"] == "black") {
                         currentColor = "black";
                     } else {
                         currentColor = "white";
                     }
                 } else {
-                    if("player1Color" == "black") {
+                    if(rooms[roomId]["player1Color"] == "black") {
                         currentColor = "white";
                     } else {
                         currentColor = "black";
                     }
                 }
+
+                // put chess to checkerboard
+                rooms[roomId]["checkerboard"][x][y] = currentColor;
+
+                // send put chess message to player in the same room
                 let messageToClient = {};
                 messageToClient["type"] = "put-chess";
                 messageToClient["content"] = message["content"] + `,${currentColor}`;
@@ -628,7 +648,7 @@ wss.on("connection", (ws, req) => {
                     messageToClient = {};
                     messageToClient["type"] = "chat";
                     if(rooms[roomId]["winner"] !== "draw") {
-                        messageToClient["content"] = `[server] ${rooms[roomId]["winner"]} wins!`;
+                        messageToClient["content"] = `[server] ${clientsName[rooms[roomId][rooms[roomId]["winner"]]]} wins!`;
                     } else {
                         messageToClient["content"] = `[server] It's a draw!`;
                     }
@@ -714,6 +734,9 @@ wss.on("connection", (ws, req) => {
                 // start the game if two players are ready
                 if(rooms[roomId]["player1Ready"] && rooms[roomId]["player2Ready"]) {
                     rooms[roomId]["winner"] = "";
+
+                    rooms[roomId]["currentRound"] = (Math.random() > 0.5) ? "player1" : "player2";
+                    rooms[roomId]["player1Color"] = rooms[roomId]["currentRound"] == "player1" ? "black" : "white";
 
                     // hint the player in this room, the game is started
                     let messageToClient = {};

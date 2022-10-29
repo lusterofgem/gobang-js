@@ -10,6 +10,10 @@
 // - chat
 // - request-player1
 // - request-player2
+// - quit-player1
+// - quit-player2
+// - player1-ready
+// - player2-ready
 
 // [input message]
 // - login-successful
@@ -152,7 +156,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     player1ReadyButton?.addEventListener("click", () => {
-
+        let message = {};
+        message["type"] = "player1-ready";
+        let messageRaw = JSON.stringify(message);
+        ws.send(messageRaw);
     });
 
     player1QuitButton?.addEventListener("click", () => {
@@ -170,7 +177,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     player2ReadyButton?.addEventListener("click", () => {
-
+        let message = {};
+        message["type"] = "player2-ready";
+        let messageRaw = JSON.stringify(message);
+        ws.send(messageRaw);
     });
 
     player2QuitButton?.addEventListener("click", () => {
@@ -321,17 +331,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 let player2Ready = message["content"]["player2Ready"] ?? false;
 
                 player1NameLabel.innerText = player1Name;
-                if(!player1Ready) {
-                    player1Button.style.display = player1Name == "" ? "block" : "none";
-                    player1ReadyButton.style.display = clientIsPlayer1 ? "block" : "none";
-                    player1QuitButton.style.display = clientIsPlayer1 ? "block" : "none";
-                }
+                player1Button.style.display = player1Name == "" ? "block" : "none";
+                player1ReadyButton.style.display = (clientIsPlayer1 && !player1Ready) ? "block" : "none";
+                player1QuitButton.style.display = clientIsPlayer1 ? "block" : "none";
+
                 player2NameLabel.innerText = player2Name;
-                if(!player2Ready) {
-                    player2Button.style.display = player2Name == "" ? "block" : "none";
-                    player2ReadyButton.style.display = clientIsPlayer2 ? "block" : "none";
-                    player2QuitButton.style.display = clientIsPlayer2 ? "block" : "none";
-                }
+                player2Button.style.display = player2Name == "" ? "block" : "none";
+                player2ReadyButton.style.display = (clientIsPlayer2 && !player2Ready) ? "block" : "none";
+                player2QuitButton.style.display = clientIsPlayer2 ? "block" : "none";
 
                 break;
             }

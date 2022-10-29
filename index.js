@@ -688,6 +688,65 @@ wss.on("connection", (ws, req) => {
 
                 break;
             }
+            case "player1-ready": {
+                let roomId = null;
+                for(let i = 0; i < rooms.length; ++i) {
+                    if(rooms[i] != null) {
+                        if(rooms[i]["players"].includes(clientIpPort)) {
+                            roomId = i;
+                        }
+                    }
+                }
+
+                // if the client is not in any room, return directly
+                if(roomId == null) {
+                    return;
+                }
+
+                // if client is not player1, return
+                if(rooms[roomId]["player1"] !== clientIpPort) {
+                    return;
+                }
+
+                rooms[roomId]["player1Ready"] = true;
+
+                // start the game if two players are ready
+                if(rooms[roomId]["player1Ready"] && rooms[roomId]["player2Ready"]) {
+                    rooms[roomId]["winner"] = "";
+
+                    // hint the player in this room, the game is started
+                    let messageToClient = {};
+                    messageToClient["type"] = "chat";
+                    messageToClient["content"] = `[server] game started!`;
+                    let messageToClientRaw = JSON.stringify(messageToClient);
+                    wss.clients.forEach((client) => {
+                        let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
+                        if(rooms[roomId]["players"].includes(ipPort)) {
+                            client.send(messageToClientRaw);
+                        }
+                    });
+                }
+
+                // notify all clients in the same room to update player slot
+                wss.clients.forEach((client) => {
+                    let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
+                    if(rooms[roomId]["players"].includes(ipPort)) {
+                        let messageToClient = {};
+                        messageToClient["type"] = "sync-player-slot";
+                        messageToClient["content"] = {};
+                        messageToClient["content"]["player1"] = clientsName[rooms[roomId]["player1"]];
+                        messageToClient["content"]["player2"] = clientsName[rooms[roomId]["player2"]];
+                        messageToClient["content"]["clientIsPlayer1"] = rooms[roomId]["player1"] === ipPort;
+                        messageToClient["content"]["clientIsPlayer2"] = rooms[roomId]["player2"] === ipPort;
+                        messageToClient["content"]["player1Ready"] = rooms[roomId]["player1Ready"];
+                        messageToClient["content"]["player2Ready"] = rooms[roomId]["player2Ready"];
+                        let messageToClientRaw = JSON.stringify(messageToClient);
+                        client.send(messageToClientRaw);
+                    }
+                });
+
+                break;
+            }
             case "quit-player1": {
                 let roomId = null;
                 for(let i = 0; i < rooms.length; ++i) {
@@ -759,6 +818,65 @@ wss.on("connection", (ws, req) => {
 
                 // join player2 slot
                 rooms[roomId]["player2"] = clientIpPort;
+
+                // notify all clients in the same room to update player slot
+                wss.clients.forEach((client) => {
+                    let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
+                    if(rooms[roomId]["players"].includes(ipPort)) {
+                        let messageToClient = {};
+                        messageToClient["type"] = "sync-player-slot";
+                        messageToClient["content"] = {};
+                        messageToClient["content"]["player1"] = clientsName[rooms[roomId]["player1"]];
+                        messageToClient["content"]["player2"] = clientsName[rooms[roomId]["player2"]];
+                        messageToClient["content"]["clientIsPlayer1"] = rooms[roomId]["player1"] === ipPort;
+                        messageToClient["content"]["clientIsPlayer2"] = rooms[roomId]["player2"] === ipPort;
+                        messageToClient["content"]["player1Ready"] = rooms[roomId]["player1Ready"];
+                        messageToClient["content"]["player2Ready"] = rooms[roomId]["player2Ready"];
+                        let messageToClientRaw = JSON.stringify(messageToClient);
+                        client.send(messageToClientRaw);
+                    }
+                });
+
+                break;
+            }
+            case "player2-ready": {
+                let roomId = null;
+                for(let i = 0; i < rooms.length; ++i) {
+                    if(rooms[i] != null) {
+                        if(rooms[i]["players"].includes(clientIpPort)) {
+                            roomId = i;
+                        }
+                    }
+                }
+
+                // if the client is not in any room, return directly
+                if(roomId == null) {
+                    return;
+                }
+
+                // if client is not player2, return
+                if(rooms[roomId]["player2"] !== clientIpPort) {
+                    return;
+                }
+
+                rooms[roomId]["player2Ready"] = true;
+
+                // start the game if two players are ready
+                if(rooms[roomId]["player1Ready"] && rooms[roomId]["player2Ready"]) {
+                    rooms[roomId]["winner"] = "";
+
+                    // hint the player in this room, the game is started
+                    let messageToClient = {};
+                    messageToClient["type"] = "chat";
+                    messageToClient["content"] = `[server] game started!`;
+                    let messageToClientRaw = JSON.stringify(messageToClient);
+                    wss.clients.forEach((client) => {
+                        let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
+                        if(rooms[roomId]["players"].includes(ipPort)) {
+                            client.send(messageToClientRaw);
+                        }
+                    });
+                }
 
                 // notify all clients in the same room to update player slot
                 wss.clients.forEach((client) => {

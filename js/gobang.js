@@ -46,8 +46,12 @@ document.addEventListener("DOMContentLoaded", () => {
     let restartButton = document.getElementById("restart-button");
     let checkerboard = document.getElementById("checkerboard");
     let player1NameLabel = document.getElementById("player1-name-label");
+    let player1ReadyButton = document.getElementById("player1-ready-button");
+    let player1QuitButton = document.getElementById("player1-quit-button");
     let player1Button = document.getElementById("player1-button");
     let player2NameLabel = document.getElementById("player2-name-label");
+    let player2ReadyButton = document.getElementById("player2-ready-button");
+    let player2QuitButton = document.getElementById("player2-quit-button");
     let player2Button = document.getElementById("player2-button");
     let textArea = document.getElementById("text-area");
     let textInput = document.getElementById("text-input");
@@ -288,11 +292,23 @@ document.addEventListener("DOMContentLoaded", () => {
             case "sync-player-slot": {
                 let player1Name = message["content"]["player1"] ?? "";
                 let player2Name = message["content"]["player2"] ?? "";
+                let clientIsPlayer1 = message["content"]["clientIsPlayer1"] ?? false;
+                let clientIsPlayer2 = message["content"]["clientIsPlayer2"] ?? false;
+                let player1Ready = message["content"]["player1Ready"] ?? false;
+                let player2Ready = message["content"]["player2Ready"] ?? false;
 
                 player1NameLabel.innerText = player1Name;
+                if(!player1Ready) {
+                    player1Button.style.display = player1Name == "" ? "block" : "none";
+                    player1ReadyButton.style.display = clientIsPlayer1 ? "block" : "none";
+                    player1QuitButton.style.display = clientIsPlayer1 ? "block" : "none";
+                }
                 player2NameLabel.innerText = player2Name;
-                player1Button.style.visibility = player1Name == "" ? "visible" : "hidden";
-                player2Button.style.visibility = player2Name == "" ? "visible" : "hidden";
+                if(!player2Ready) {
+                    player2Button.style.display = player2Name == "" ? "block" : "none";
+                    player2ReadyButton.style.display = clientIsPlayer2 ? "block" : "none";
+                    player2QuitButton.style.display = clientIsPlayer2 ? "block" : "none";
+                }
 
                 break;
             }

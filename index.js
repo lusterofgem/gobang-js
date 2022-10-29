@@ -60,7 +60,9 @@ for(let i = 0; i < mapSize; ++i) {
 //     {
 //         "winner": ""                // "player1" or "player2"
 //         "currentRound": "",         // "player1" or "player2"
-//         "player1Color": "",         // "black" or "white"
+//         "player1Color": "black",    // "black" or "white"
+//         "player1Ready": false,       // true or false
+//         "player2Ready": false,       // true or false
 //         "player1": "",              // ipPort of player1
 //         "player2": "",              // ipPort of player2
 //         "players": [],              // an array of ipPort
@@ -88,15 +90,6 @@ wss.on("connection", (ws, req) => {
     // messageRaw = JSON.stringify(message);
     // wss.clients.forEach((client) => {
     //     client.send(messageRaw);
-    // });
-
-    // notify client to sync turn
-    // messageToClient = {};
-    // messageToClient["type"] = "sync-turn";
-    // messageToClient["content"] = currentColor
-    // messageToClientRaw = JSON.stringify(messageToClient);
-    // wss.clients.forEach((client) => {
-    //     client.send(messageToClientRaw);
     // });
 
     // notify client to sync winner
@@ -190,6 +183,10 @@ wss.on("connection", (ws, req) => {
                 messageToClient["content"] = {};
                 messageToClient["content"]["player1"] = clientsName[rooms[roomId]["player1"]];
                 messageToClient["content"]["player2"] = clientsName[rooms[roomId]["player2"]];
+                messageToClient["content"]["clientIsPlayer1"] = rooms[roomId]["player1"] === clientIpPort;
+                messageToClient["content"]["clientIsPlayer2"] = rooms[roomId]["player2"] === clientIpPort;
+                messageToClient["content"]["player1Ready"] = rooms[roomId]["player1Ready"];
+                messageToClient["content"]["player2Ready"] = rooms[roomId]["player2Ready"];
                 messageToClientRaw = JSON.stringify(messageToClient);
                 ws.send(messageToClientRaw);
 
@@ -261,6 +258,10 @@ wss.on("connection", (ws, req) => {
                 messageToClient["content"] = {};
                 messageToClient["content"]["player1"] = clientsName[rooms[roomId]["player1"]];
                 messageToClient["content"]["player2"] = clientsName[rooms[roomId]["player2"]];
+                messageToClient["content"]["clientIsPlayer1"] = rooms[roomId]["player1"] === clientIpPort;
+                messageToClient["content"]["clientIsPlayer2"] = rooms[roomId]["player2"] === clientIpPort;
+                messageToClient["content"]["player1Ready"] = rooms[roomId]["player1Ready"];
+                messageToClient["content"]["player2Ready"] = rooms[roomId]["player2Ready"];
                 messageToClientRaw = JSON.stringify(messageToClient);
                 ws.send(messageToClientRaw);
 
@@ -330,8 +331,12 @@ wss.on("connection", (ws, req) => {
                             messageToClient["content"] = {};
                             messageToClient["content"]["player1"] = clientsName[rooms[roomId]["player1"]];
                             messageToClient["content"]["player2"] = clientsName[rooms[roomId]["player2"]];
+                            messageToClient["content"]["clientIsPlayer1"] = rooms[roomId]["player1"] === clientIpPort;
+                            messageToClient["content"]["clientIsPlayer2"] = rooms[roomId]["player2"] === clientIpPort;
+                            messageToClient["content"]["player1Ready"] = rooms[roomId]["player1Ready"];
+                            messageToClient["content"]["player2Ready"] = rooms[roomId]["player2Ready"];
                             let messageToClientRaw = JSON.stringify(messageToClient);
-                            client.send(messageToClientRaw);
+                            ws.send(messageToClientRaw);
                         }
                     });
                 } else {
@@ -670,8 +675,12 @@ wss.on("connection", (ws, req) => {
                         messageToClient["content"] = {};
                         messageToClient["content"]["player1"] = clientsName[rooms[roomId]["player1"]];
                         messageToClient["content"]["player2"] = clientsName[rooms[roomId]["player2"]];
+                        messageToClient["content"]["clientIsPlayer1"] = rooms[roomId]["player1"] === clientIpPort;
+                        messageToClient["content"]["clientIsPlayer2"] = rooms[roomId]["player2"] === clientIpPort;
+                        messageToClient["content"]["player1Ready"] = rooms[roomId]["player1Ready"];
+                        messageToClient["content"]["player2Ready"] = rooms[roomId]["player2Ready"];
                         let messageToClientRaw = JSON.stringify(messageToClient);
-                        client.send(messageToClientRaw);
+                        ws.send(messageToClientRaw);
                     }
                 });
 
@@ -717,8 +726,12 @@ wss.on("connection", (ws, req) => {
                         messageToClient["content"] = {};
                         messageToClient["content"]["player1"] = clientsName[rooms[roomId]["player1"]];
                         messageToClient["content"]["player2"] = clientsName[rooms[roomId]["player2"]];
+                        messageToClient["content"]["clientIsPlayer1"] = rooms[roomId]["player1"] === clientIpPort;
+                        messageToClient["content"]["clientIsPlayer2"] = rooms[roomId]["player2"] === clientIpPort;
+                        messageToClient["content"]["player1Ready"] = rooms[roomId]["player1Ready"];
+                        messageToClient["content"]["player2Ready"] = rooms[roomId]["player2Ready"];
                         let messageToClientRaw = JSON.stringify(messageToClient);
-                        client.send(messageToClientRaw);
+                        ws.send(messageToClientRaw);
                     }
                 });
 
@@ -804,8 +817,12 @@ wss.on("connection", (ws, req) => {
                     messageToClient["content"] = {};
                     messageToClient["content"]["player1"] = clientsName[rooms[roomId]["player1"]];
                     messageToClient["content"]["player2"] = clientsName[rooms[roomId]["player2"]];
+                    messageToClient["content"]["clientIsPlayer1"] = rooms[roomId]["player1"] === clientIpPort;
+                    messageToClient["content"]["clientIsPlayer2"] = rooms[roomId]["player2"] === clientIpPort;
+                    messageToClient["content"]["player1Ready"] = rooms[roomId]["player1Ready"];
+                    messageToClient["content"]["player2Ready"] = rooms[roomId]["player2Ready"];
                     let messageToClientRaw = JSON.stringify(messageToClient);
-                    client.send(messageToClientRaw);
+                    ws.send(messageToClientRaw);
                 }
             });
         } else {

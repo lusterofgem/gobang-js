@@ -113,9 +113,19 @@ battle room: nope ❌
 }
 ```
 
- ---
- 
-**To add as a contributor, please edit the README file and just delete your name, then save your work**
- - 408850302 彭湲涵
+ - sync-player-slot
+
+ ```
+ {
+     "type": "sync-player-slot",
+     "content": [
+        "player1Name": "",
+        "player2Name": "",
+        "clientIsPlayer1": false,
+        "clientIsPlayer2": false,
+        "player1Ready": false,
+        "player2Ready": false
+     ]
+ }
 
  

@@ -157,30 +157,46 @@ wss.on("connection", (ws, req) => {
                 }
 
                 // find the smallest available room id
-                let choosedRoomId = rooms.length;
+                let roomId = rooms.length;
                 for(let i = 0; i < rooms.length; ++i) {
                     if(rooms[i] == null) {
-                        choosedRoomId = i;
+                        roomId = i;
                         break;
                     }
                 }
 
-                rooms[choosedRoomId] = {};
-                rooms[choosedRoomId]["currentColor"] = "black";
-                rooms[choosedRoomId]["checkerboard"] = [];
+                // create room
+                rooms[roomId] = {};
+                rooms[roomId]["currentColor"] = "black";
+                rooms[roomId]["checkerboard"] = [];
                 for(let i = 0; i < mapSize; ++i) {
-                    rooms[choosedRoomId]["checkerboard"][i] = [];
+                    rooms[roomId]["checkerboard"][i] = [];
                     for(let j = 0; j < mapSize; ++j) {
-                        rooms[choosedRoomId]["checkerboard"][i][j] = "";
+                        rooms[roomId]["checkerboard"][i][j] = "";
                     }
                 }
-                rooms[choosedRoomId]["players"] = [clientIpPort];
+                rooms[roomId]["players"] = [clientIpPort];
 
+                // notify client the joined room id
                 let messageToClient = {};
                 messageToClient["type"] = "join-room";
-                messageToClient["content"] = choosedRoomId;
+                messageToClient["content"] = roomId;
                 let messageToClientRaw = JSON.stringify(messageToClient);
                 ws.send(messageToClientRaw);
+
+                // notify all clients in the same room to update player slot
+                wss.clients.forEach((client) => {
+                    let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
+                    if(rooms[roomId]["players"].includes(ipPort)) {
+                        let messageToClient = {};
+                        messageToClient["type"] = "sync-player-slot";
+                        messageToClient["content"] = {};
+                        messageToClient["content"]["player1"] = clientsName[rooms[roomId]["player1"]];
+                        messageToClient["content"]["player2"] = clientsName[rooms[roomId]["player2"]];
+                        let messageToClientRaw = JSON.stringify(messageToClient);
+                        client.send(messageToClientRaw);
+                    }
+                });
 
                 // greeting to player in the same room
                 messageToClient = {};
@@ -189,7 +205,7 @@ wss.on("connection", (ws, req) => {
                 messageToClientRaw = JSON.stringify(messageToClient);
                 wss.clients.forEach((client) => {
                     let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
-                    if(rooms[choosedRoomId]["players"].includes(ipPort)) {
+                    if(rooms[roomId]["players"].includes(ipPort)) {
                         client.send(messageToClientRaw);
                     }
                 });
@@ -208,11 +224,26 @@ wss.on("connection", (ws, req) => {
                 }
                 rooms[roomId]["players"].push(clientIpPort);
 
+                // notify client the joined room id
                 let messageToClient = {};
                 messageToClient["type"] = "join-room";
                 messageToClient["content"] = roomId;
                 let messageToClientRaw = JSON.stringify(messageToClient);
                 ws.send(messageToClientRaw);
+
+                // notify all clients in the same room to update player slot
+                wss.clients.forEach((client) => {
+                    let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
+                    if(rooms[roomId]["players"].includes(ipPort)) {
+                        let messageToClient = {};
+                        messageToClient["type"] = "sync-player-slot";
+                        messageToClient["content"] = {};
+                        messageToClient["content"]["player1"] = clientsName[rooms[roomId]["player1"]];
+                        messageToClient["content"]["player2"] = clientsName[rooms[roomId]["player2"]];
+                        let messageToClientRaw = JSON.stringify(messageToClient);
+                        client.send(messageToClientRaw);
+                    }
+                });
 
                 // greeting to player in the same room
                 messageToClient = {};

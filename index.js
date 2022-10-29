@@ -184,18 +184,33 @@ wss.on("connection", (ws, req) => {
                 let messageToClientRaw = JSON.stringify(messageToClient);
                 ws.send(messageToClientRaw);
 
-                // notify all clients in the same room to update player slot
+                // notify all clients in the room page to sync rooms
                 wss.clients.forEach((client) => {
                     let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
-                    if(rooms[roomId]["players"].includes(ipPort)) {
-                        let messageToClient = {};
-                        messageToClient["type"] = "sync-player-slot";
-                        messageToClient["content"] = {};
-                        messageToClient["content"]["player1"] = clientsName[rooms[roomId]["player1"]];
-                        messageToClient["content"]["player2"] = clientsName[rooms[roomId]["player2"]];
-                        let messageToClientRaw = JSON.stringify(messageToClient);
-                        client.send(messageToClientRaw);
+                    // if the client have not login, return
+                    if(clientsName[ipPort] == null) {
+                        return;
                     }
+                    // if the client is in battle page, return
+                    let roomId = null;
+                    for(let i = 0; i < rooms.length; ++i) {
+                        if(rooms[i] != null) {
+                            if(rooms[i]["players"].includes(ipPort)) {
+                                roomId = i;
+                            }
+                        }
+                    }
+                    if(roomId != null) {
+                        return;
+                    }
+
+                    // send message
+                    messageToClient = {};
+                    messageToClient["type"] = "sync-rooms";
+                    messageToClient["content"] = rooms;
+                    messageToClientRaw = JSON.stringify(messageToClient);
+                    ws.send(messageToClientRaw);
+                    client.send(messageToClientRaw);
                 });
 
                 // greeting to player in the same room
@@ -231,19 +246,14 @@ wss.on("connection", (ws, req) => {
                 let messageToClientRaw = JSON.stringify(messageToClient);
                 ws.send(messageToClientRaw);
 
-                // notify all clients in the same room to update player slot
-                wss.clients.forEach((client) => {
-                    let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
-                    if(rooms[roomId]["players"].includes(ipPort)) {
-                        let messageToClient = {};
-                        messageToClient["type"] = "sync-player-slot";
-                        messageToClient["content"] = {};
-                        messageToClient["content"]["player1"] = clientsName[rooms[roomId]["player1"]];
-                        messageToClient["content"]["player2"] = clientsName[rooms[roomId]["player2"]];
-                        let messageToClientRaw = JSON.stringify(messageToClient);
-                        client.send(messageToClientRaw);
-                    }
-                });
+                // notify the client to update player slot
+                messageToClient = {};
+                messageToClient["type"] = "sync-player-slot";
+                messageToClient["content"] = {};
+                messageToClient["content"]["player1"] = clientsName[rooms[roomId]["player1"]];
+                messageToClient["content"]["player2"] = clientsName[rooms[roomId]["player2"]];
+                messageToClientRaw = JSON.stringify(messageToClient);
+                ws.send(messageToClientRaw);
 
                 // greeting to player in the same room
                 messageToClient = {};
@@ -315,9 +325,38 @@ wss.on("connection", (ws, req) => {
                             client.send(messageToClientRaw);
                         }
                     });
+                } else {
+                    // notify all clients in the room page to sync rooms
+                    wss.clients.forEach((client) => {
+                        let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
+                        // if the client have not login, return
+                        if(clientsName[ipPort] == null) {
+                            return;
+                        }
+                        // if the client is in battle page, return
+                        let roomId = null;
+                        for(let i = 0; i < rooms.length; ++i) {
+                            if(rooms[i] != null) {
+                                if(rooms[i]["players"].includes(ipPort)) {
+                                    roomId = i;
+                                }
+                            }
+                        }
+                        if(roomId != null) {
+                            return;
+                        }
+
+                        // send message
+                        messageToClient = {};
+                        messageToClient["type"] = "sync-rooms";
+                        messageToClient["content"] = rooms;
+                        messageToClientRaw = JSON.stringify(messageToClient);
+                        ws.send(messageToClientRaw);
+                        client.send(messageToClientRaw);
+                    });
                 }
 
-                // notify quit client to sync rooms
+                // notify the quit client to sync rooms
                 messageToClient = {};
                 messageToClient["type"] = "sync-rooms";
                 messageToClient["content"] = rooms;
@@ -759,6 +798,35 @@ wss.on("connection", (ws, req) => {
                     let messageToClientRaw = JSON.stringify(messageToClient);
                     client.send(messageToClientRaw);
                 }
+            });
+        } else {
+            // notify all clients in the room page to sync rooms
+            wss.clients.forEach((client) => {
+                let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
+                // if the client have not login, return
+                if(clientsName[ipPort] == null) {
+                    return;
+                }
+                // if the client is in battle page, return
+                let roomId = null;
+                for(let i = 0; i < rooms.length; ++i) {
+                    if(rooms[i] != null) {
+                        if(rooms[i]["players"].includes(ipPort)) {
+                            roomId = i;
+                        }
+                    }
+                }
+                if(roomId != null) {
+                    return;
+                }
+
+                // send message
+                messageToClient = {};
+                messageToClient["type"] = "sync-rooms";
+                messageToClient["content"] = rooms;
+                messageToClientRaw = JSON.stringify(messageToClient);
+                ws.send(messageToClientRaw);
+                client.send(messageToClientRaw);
             });
         }
 

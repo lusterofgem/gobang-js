@@ -42,6 +42,12 @@ const wss = new ws.WebSocketServer({port: wsPort});
 
 const mapSize = 15;
 
+// possible: "", "black", "white"
+let winner = "";
+
+// record client ip:port & name to key & value
+let clientsName = {};
+
 let currentColor = "black";
 let checkerboard = [];
 for(let i = 0; i < mapSize; ++i) {
@@ -50,19 +56,20 @@ for(let i = 0; i < mapSize; ++i) {
         checkerboard[i][j] = "";
     }
 }
-// possible: "", "black", "white"
-let winner = "";
-
-// record client ip:port & name to key & value
-let clientsName = {};
-
 // record every rooms' information, e.g.
 // [
 //     {
+//         "currentRound": "player1",
 //         "black": "player1",
 //         "player1": "",
 //         "player2": "",
-//         "players": []
+//         "players": [],
+//         "checkerboard": [
+//             ["", "", "", ...],
+//             ["", "", "", ...],
+//             ["", "", "", ...],
+//             ...
+//         ]
 //      },
 // ]
 let rooms = [];
@@ -228,6 +235,18 @@ wss.on("connection", (ws, req) => {
                     return;
                 }
 
+                // say goodbye to all client in the room
+                let messageToClient = {};
+                messageToClient["type"] = "chat";
+                messageToClient["content"] = `${clientsName[clientIpPort]} leaved!`;
+                let messageToClientRaw = JSON.stringify(messageToClient);
+                wss.clients.forEach((client) => {
+                    let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
+                    if(rooms[roomId]["players"].includes(ipPort)) {
+                        client.send(messageToClientRaw);
+                    }
+                });
+
                 // remove client from room
                 if(rooms[roomId].black == clientIpPort) {
                     delete rooms[roomId].black;
@@ -243,11 +262,11 @@ wss.on("connection", (ws, req) => {
                     delete rooms[roomId];
                 }
 
-                // notify client to sync rooms
-                let messageToClient = {};
+                // notify quit client to sync rooms
+                messageToClient = {};
                 messageToClient["type"] = "sync-rooms";
                 messageToClient["content"] = rooms;
-                let messageToClientRaw = JSON.stringify(messageToClient);
+                messageToClientRaw = JSON.stringify(messageToClient);
                 ws.send(messageToClientRaw);
 
                 break;

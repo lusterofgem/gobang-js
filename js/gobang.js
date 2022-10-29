@@ -3,11 +3,13 @@
 //
 // - create-room
 // - join-room
-// - quit-room
 //
-// - put-chess
+// - quit-room
 // - restart-game
+// - put-chess
 // - chat
+// - request-player1
+// - request-player2
 
 // [input message]
 // - login-successful
@@ -18,8 +20,9 @@
 //
 // - put-chess
 // - sync-checkerboard
+// - sync-player-slot
 // - sync-winner
-// - sync-turn
+// - sync-current-color
 // - chat
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -39,13 +42,17 @@ document.addEventListener("DOMContentLoaded", () => {
     let roomIdJoinButton = document.getElementById("room-id-join-button");
     let roomIdLabel = document.getElementById("room-id-label");
     let quitRoomButton = document.getElementById("quit-room-button");
-    let checkerboard = document.getElementById("checkerboard");
-    let context = checkerboard.getContext("2d");
     let chessColorImage = document.getElementById("chess-color-image");
     let restartButton = document.getElementById("restart-button");
+    let checkerboard = document.getElementById("checkerboard");
+    let player1NameLabel = document.getElementById("player1-name-label");
+    let player1Button = document.getElementById("player1-button");
+    let player2NameLabel = document.getElementById("player2-name-label");
+    let player2Button = document.getElementById("player2-button");
     let textArea = document.getElementById("text-area");
     let textInput = document.getElementById("text-input");
     let textButton = document.getElementById("text-button");
+    let context = checkerboard.getContext("2d");
 
     const mapSize = 15;
     const canvasSize = checkerboard.width;
@@ -136,6 +143,20 @@ document.addEventListener("DOMContentLoaded", () => {
     restartButton?.addEventListener("click", () => {
         let message = {};
         message["type"] = "restart-game";
+        let messageRaw = JSON.stringify(message);
+        ws.send(messageRaw);
+    });
+
+    player1Button?.addEventListener("click", () => {
+        let message = {};
+        message["type"] = "request-player1";
+        let messageRaw = JSON.stringify(message);
+        ws.send(messageRaw);
+    });
+
+    player2Button?.addEventListener("click", () => {
+        let message = {};
+        message["type"] = "request-player2";
         let messageRaw = JSON.stringify(message);
         ws.send(messageRaw);
     });
@@ -245,7 +266,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 break;
             }
-            case "sync-turn": {
+            case "sync-current-color": {
                 const color = message["content"];
                 chessColorImage.src = `/assets/images/${color}.png`;
                 break;
@@ -262,6 +283,14 @@ document.addEventListener("DOMContentLoaded", () => {
                         }
                     }
                 }
+                break;
+            }
+            case "sync-player-slot": {
+                let player1Name = message["content"]["player1"] ?? "";
+                let player2Name = message["content"]["player2"] ?? "";
+                player1NameLabel.innerText = player1Name;
+                player2NameLabel.innerText = player2Name;
+
                 break;
             }
             case "sync-winner": {

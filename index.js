@@ -184,6 +184,15 @@ wss.on("connection", (ws, req) => {
                 let messageToClientRaw = JSON.stringify(messageToClient);
                 ws.send(messageToClientRaw);
 
+                // notify the client to update player slot
+                messageToClient = {};
+                messageToClient["type"] = "sync-player-slot";
+                messageToClient["content"] = {};
+                messageToClient["content"]["player1"] = clientsName[rooms[roomId]["player1"]];
+                messageToClient["content"]["player2"] = clientsName[rooms[roomId]["player2"]];
+                messageToClientRaw = JSON.stringify(messageToClient);
+                ws.send(messageToClientRaw);
+
                 // notify all clients in the room page to sync rooms
                 wss.clients.forEach((client) => {
                     let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;

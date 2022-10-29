@@ -179,6 +179,13 @@ wss.on("connection", (ws, req) => {
                 let messageToClientRaw = JSON.stringify(messageToClient);
                 ws.send(messageToClientRaw);
 
+                // notify the client to sync checkerboard
+                messageToClient = {};
+                messageToClient["type"] = "sync-checkerboard"
+                messageToClient["content"] = rooms[roomId]["checkerboard"];
+                messageToClientRaw = JSON.stringify(messageToClient);
+                ws.send(messageToClientRaw);
+
                 // notify the client to update player slot
                 messageToClient = {};
                 messageToClient["type"] = "sync-player-slot";
@@ -252,6 +259,13 @@ wss.on("connection", (ws, req) => {
                 messageToClient["type"] = "join-room";
                 messageToClient["content"] = roomId;
                 let messageToClientRaw = JSON.stringify(messageToClient);
+                ws.send(messageToClientRaw);
+
+                // notify the client to sync checkerboard
+                messageToClient = {};
+                messageToClient["type"] = "sync-checkerboard"
+                messageToClient["content"] = rooms[roomId]["checkerboard"];
+                messageToClientRaw = JSON.stringify(messageToClient);
                 ws.send(messageToClientRaw);
 
                 // notify the client to update player slot

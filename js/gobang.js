@@ -288,8 +288,11 @@ document.addEventListener("DOMContentLoaded", () => {
             case "sync-player-slot": {
                 let player1Name = message["content"]["player1"] ?? "";
                 let player2Name = message["content"]["player2"] ?? "";
+
                 player1NameLabel.innerText = player1Name;
                 player2NameLabel.innerText = player2Name;
+                player1Button.style.visibility = player1Name == "" ? "visible" : "hidden";
+                player2Button.style.visibility = player2Name == "" ? "visible" : "hidden";
 
                 break;
             }

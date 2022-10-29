@@ -336,7 +336,7 @@ wss.on("connection", (ws, req) => {
                             messageToClient["content"]["player1Ready"] = rooms[roomId]["player1Ready"];
                             messageToClient["content"]["player2Ready"] = rooms[roomId]["player2Ready"];
                             let messageToClientRaw = JSON.stringify(messageToClient);
-                            ws.send(messageToClientRaw);
+                            client.send(messageToClientRaw);
                         }
                     });
                 } else {
@@ -680,7 +680,7 @@ wss.on("connection", (ws, req) => {
                         messageToClient["content"]["player1Ready"] = rooms[roomId]["player1Ready"];
                         messageToClient["content"]["player2Ready"] = rooms[roomId]["player2Ready"];
                         let messageToClientRaw = JSON.stringify(messageToClient);
-                        ws.send(messageToClientRaw);
+                        client.send(messageToClientRaw);
                     }
                 });
 
@@ -731,7 +731,7 @@ wss.on("connection", (ws, req) => {
                         messageToClient["content"]["player1Ready"] = rooms[roomId]["player1Ready"];
                         messageToClient["content"]["player2Ready"] = rooms[roomId]["player2Ready"];
                         let messageToClientRaw = JSON.stringify(messageToClient);
-                        ws.send(messageToClientRaw);
+                        client.send(messageToClientRaw);
                     }
                 });
 
@@ -822,7 +822,7 @@ wss.on("connection", (ws, req) => {
                     messageToClient["content"]["player1Ready"] = rooms[roomId]["player1Ready"];
                     messageToClient["content"]["player2Ready"] = rooms[roomId]["player2Ready"];
                     let messageToClientRaw = JSON.stringify(messageToClient);
-                    ws.send(messageToClientRaw);
+                    client.send(messageToClientRaw);
                 }
             });
         } else {

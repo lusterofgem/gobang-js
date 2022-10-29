@@ -4,9 +4,9 @@ A gobang game server.
 
 ![preview](https://github.com/lusterofgem/gobang-js/blob/main/assets/images/preview.png)
 
-The client & serveer use ws to transfer message to communicate.
+The client & server use stringify json to transfer message on the websocket.
 
-The message is a json (stringifed object), the structure is like this:
+e.g.
 
 ```
 {
@@ -34,7 +34,7 @@ hub: ready ✔️
 battle room: ready ✔️
 
 ## client to server message
- 
+
  - put-chess
 
 ```

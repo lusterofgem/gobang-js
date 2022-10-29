@@ -663,6 +663,7 @@ wss.on("connection", (ws, req) => {
                 // if the player is already in the player2 slot, remove from player2 slot
                 if(rooms[roomId]["player2"] == clientIpPort) {
                     delete rooms[roomId]["player2"];
+                    rooms[roomId]["player2Ready"] = false;
                 }
 
                 // join player1 slot
@@ -814,6 +815,7 @@ wss.on("connection", (ws, req) => {
                 // if the player is already in the player1 slot, remove from player1 slot
                 if(rooms[roomId]["player1"] == clientIpPort) {
                     delete rooms[roomId]["player1"];
+                    rooms[roomId]["player1Ready"] = false;
                 }
 
                 // join player2 slot

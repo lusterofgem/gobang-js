@@ -890,6 +890,9 @@ wss.on("connection", (ws, req) => {
                 if(rooms[roomId]["player1Ready"] && rooms[roomId]["player2Ready"]) {
                     rooms[roomId]["winner"] = "";
 
+                    rooms[roomId]["currentRound"] = (Math.random() > 0.5) ? "player1" : "player2";
+                    rooms[roomId]["player1Color"] = rooms[roomId]["currentRound"] == "player1" ? "black" : "white";
+
                     // hint the player in this room, the game is started
                     let messageToClient = {};
                     messageToClient["type"] = "chat";

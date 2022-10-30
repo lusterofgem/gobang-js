@@ -261,6 +261,13 @@ wss.on("connection", (ws, req) => {
                 let messageToClientRaw = JSON.stringify(messageToClient);
                 ws.send(messageToClientRaw);
 
+                // notify client to sync winner
+                messageToClient = {};
+                messageToClient["type"] = "sync-winner";
+                messageToClient["content"] = rooms[roomId]["winner"];
+                messageToClientRaw = JSON.stringify(messageToClient);
+                ws.send(messageToClientRaw);
+
                 // notify the client to sync checkerboard
                 messageToClient = {};
                 messageToClient["type"] = "sync-checkerboard"
@@ -321,6 +328,36 @@ wss.on("connection", (ws, req) => {
                         client.send(messageToClientRaw);
                     }
                 });
+
+                // if it is not game over yet, the opponent wins the game
+                if(rooms[roomId]["winner"] === "") {
+                    let opponentIpPort = rooms[roomId]["player1"] == clientIpPort ? rooms[roomId]["player2"] : rooms[roomId]["player1"];
+                    rooms[roomId]["winner"] = opponentIpPort == rooms[roomId]["player1"] ? "player1" : "player2";
+
+                    // hint all players in the room
+                    let messageToClient = {};
+                    messageToClient["type"] = "chat";
+                    messageToClient["content"] = `[server] ${clientsName[opponentIpPort]} wins!`;
+                    let messageToClientRaw = JSON.stringify(messageToClient);
+                    wss.clients.forEach((client) => {
+                        let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
+                        if(rooms[roomId]["players"].includes(ipPort)) {
+                            client.send(messageToClientRaw);
+                        }
+                    });
+
+                    // notify all clients to sync winner
+                    messageToClient = {};
+                    messageToClient["type"] = "sync-winner";
+                    messageToClient["content"] = opponentIpPort;
+                    messageToClientRaw = JSON.stringify(messageToClient);
+                    wss.clients.forEach((client) => {
+                        let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
+                        if(rooms[roomId]["players"].includes(ipPort)) {
+                            client.send(messageToClientRaw);
+                        }
+                    });
+                }
 
                 // remove client from room
                 if(rooms[roomId].black == clientIpPort) {
@@ -405,8 +442,23 @@ wss.on("connection", (ws, req) => {
                     }
                 }
 
-                // if the game is not over, return directly
+                // if the game is not over, return
                 if(rooms[roomId]["winner"] === "") {
+                    return;
+                }
+
+                // if the requesting client is not player1 or player2, return
+                if(clientIpPort !== rooms[roomId]["player1"] && clientIpPort !== rooms[roomId]["player2"]) {
+                    return;
+                }
+
+                // if player1 or player2 is empty, return
+                if(rooms[roomId]["player1"] == null && rooms[roomId]["player2"] == null) {
+                    return;
+                }
+
+                // if one of the player is not ready, return
+                if(!rooms[roomId]["player1Ready"] || !rooms[roomId]["player2Ready"]) {
                     return;
                 }
 
@@ -480,21 +532,15 @@ wss.on("connection", (ws, req) => {
                     return;
                 }
 
-                console.log("debugging 1"); //debug!!
-
                 // game not started, return directly
                 if(rooms[roomId]["winner"] == null) {
                     return;
                 }
 
-                console.log("debugging 2"); //debug!!
-
                 // already game over, return directly
                 if(rooms[roomId]["winner"] === "player1" || rooms[roomId]["winner"] === "player2" || rooms[roomId]["winner"] === "draw") {
                     return;
                 }
-
-                console.log("debugging 3"); //debug!!
 
                 // if the client is not the current round player, return directly
                 console.log(rooms[roomId]["currentRound"]);
@@ -502,8 +548,6 @@ wss.on("connection", (ws, req) => {
                 if(rooms[roomId][rooms[roomId]["currentRound"]] !== clientIpPort) {
                     return;
                 }
-
-                console.log("debugging 4"); //debug!!
 
                 const point = message["content"].split(",");
                 const x = parseInt(point[0]);
@@ -1051,6 +1095,36 @@ wss.on("connection", (ws, req) => {
             messageToClient["type"] = "chat";
             messageToClient["content"] = `${clientsName[clientIpPort]} leaved!`;
             let messageToClientRaw = JSON.stringify(messageToClient);
+            wss.clients.forEach((client) => {
+                let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
+                if(rooms[roomId]["players"].includes(ipPort)) {
+                    client.send(messageToClientRaw);
+                }
+            });
+        }
+
+        // if it is not game over yet, the opponent wins the game
+        if(rooms[roomId]["winner"] === "") {
+            let opponentIpPort = rooms[roomId]["player1"] == clientIpPort ? rooms[roomId]["player2"] : rooms[roomId]["player1"];
+            rooms[roomId]["winner"] = opponentIpPort == rooms[roomId]["player1"] ? "player1" : "player2";
+
+            // hint all players in the room
+            let messageToClient = {};
+            messageToClient["type"] = "chat";
+            messageToClient["content"] = `[server] ${clientsName[opponentIpPort]} wins!`;
+            let messageToClientRaw = JSON.stringify(messageToClient);
+            wss.clients.forEach((client) => {
+                let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
+                if(rooms[roomId]["players"].includes(ipPort)) {
+                    client.send(messageToClientRaw);
+                }
+            });
+
+            // notify all clients to sync winner
+            messageToClient = {};
+            messageToClient["type"] = "sync-winner";
+            messageToClient["content"] = opponentIpPort;
+            messageToClientRaw = JSON.stringify(messageToClient);
             wss.clients.forEach((client) => {
                 let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
                 if(rooms[roomId]["players"].includes(ipPort)) {

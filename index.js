@@ -38,8 +38,7 @@ app.listen(port);
 // - restart-game
 // - put-chess
 // - chat
-// - request-player1
-// - request-player2
+// - request-player-slot
 // - quit-player1
 // - quit-player2
 
@@ -666,7 +665,15 @@ wss.on("connection", (ws, req) => {
 
                 break;
             }
-            case "request-player1": {
+            case "request-player-slot": {
+                let requestedPlayerSlot = message["content"];
+
+                // if the requested player not "player1" or "player2", return
+                if(requestedPlayerSlot !== "player1" && requestedPlayerSlot !== "player2") {
+                    return;
+                }
+
+                // get the requesting client room id
                 let roomId = null;
                 for(let i = 0; i < rooms.length; ++i) {
                     if(rooms[i] != null) {
@@ -676,32 +683,61 @@ wss.on("connection", (ws, req) => {
                     }
                 }
 
-                // if the client is not in any room, return directly
-                if(roomId == null) {
-                    return;
-                }
-
-                // if the request client is not in the room or player1 is not empty, return directly
-                if(!rooms[roomId]["players"].includes(clientIpPort) || rooms[roomId]["player1"] != null) {
-                    return;
-                }
-
-                // if the player is already in the player2 slot, remove from player2 slot
-                if(rooms[roomId]["player2"] == clientIpPort) {
-                    delete rooms[roomId]["player2"];
-                    delete rooms[roomId]["player2Ready"];
-                }
-
-                // join player1 slot
-                rooms[roomId]["player1"] = clientIpPort;
-
-                // notify all clients in the same room to update player slot
-                wss.clients.forEach((client) => {
-                    let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
-                    if(rooms[roomId]["players"].includes(ipPort)) {
-                        notifyClientUpdatePlayerSlot(client, roomId);
+                if(requestedPlayerSlot == "player1") {
+                    // if the client is not in any room, return
+                    if(roomId == null) {
+                        return;
                     }
-                });
+
+                    // if the request client is not in the room or player1 is not empty, return
+                    if(!rooms[roomId]["players"].includes(clientIpPort) || rooms[roomId]["player1"] != null) {
+                        return;
+                    }
+
+                    // if the player is already in the player2 slot, remove from player2 slot
+                    if(rooms[roomId]["player2"] == clientIpPort) {
+                        delete rooms[roomId]["player2"];
+                        delete rooms[roomId]["player2Ready"];
+                    }
+
+                    // join player1 slot
+                    rooms[roomId]["player1"] = clientIpPort;
+
+                    // notify all clients in the same room to update player slot
+                    wss.clients.forEach((client) => {
+                        let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
+                        if(rooms[roomId]["players"].includes(ipPort)) {
+                            notifyClientUpdatePlayerSlot(client, roomId);
+                        }
+                    });
+                } else {
+                    // if the client is not in any room, return
+                    if(roomId == null) {
+                        return;
+                    }
+
+                    // if the request client is not in the room or player2 is not empty, return
+                    if(!rooms[roomId]["players"].includes(clientIpPort) || rooms[roomId]["player2"] != null) {
+                        return;
+                    }
+
+                    // if the player is already in the player1 slot, remove from player1 slot
+                    if(rooms[roomId]["player1"] == clientIpPort) {
+                        delete rooms[roomId]["player1"];
+                        rooms[roomId]["player1Ready"] = false;
+                    }
+
+                    // join player2 slot
+                    rooms[roomId]["player2"] = clientIpPort;
+
+                    // notify all clients in the same room to update player slot
+                    wss.clients.forEach((client) => {
+                        let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
+                        if(rooms[roomId]["players"].includes(ipPort)) {
+                            notifyClientUpdatePlayerSlot(client, roomId);
+                        }
+                    });
+                }
 
                 break;
             }
@@ -820,45 +856,6 @@ wss.on("connection", (ws, req) => {
                 // unready the two players
                 delete rooms[roomId]["player1Ready"];
                 delete rooms[roomId]["player2Ready"];
-
-                // notify all clients in the same room to update player slot
-                wss.clients.forEach((client) => {
-                    let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
-                    if(rooms[roomId]["players"].includes(ipPort)) {
-                        notifyClientUpdatePlayerSlot(client, roomId);
-                    }
-                });
-
-                break;
-            }
-            case "request-player2": {
-                let roomId = null;
-                for(let i = 0; i < rooms.length; ++i) {
-                    if(rooms[i] != null) {
-                        if(rooms[i]["players"].includes(clientIpPort)) {
-                            roomId = i;
-                        }
-                    }
-                }
-
-                // if the client is not in any room, return directly
-                if(roomId == null) {
-                    return;
-                }
-
-                // if the request client is not in the room or player2 is not empty, return directly
-                if(!rooms[roomId]["players"].includes(clientIpPort) || rooms[roomId]["player2"] != null) {
-                    return;
-                }
-
-                // if the player is already in the player1 slot, remove from player1 slot
-                if(rooms[roomId]["player1"] == clientIpPort) {
-                    delete rooms[roomId]["player1"];
-                    rooms[roomId]["player1Ready"] = false;
-                }
-
-                // join player2 slot
-                rooms[roomId]["player2"] = clientIpPort;
 
                 // notify all clients in the same room to update player slot
                 wss.clients.forEach((client) => {

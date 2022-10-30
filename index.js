@@ -1010,7 +1010,7 @@ wss.on("connection", (ws, req) => {
     function notifyClientUpdateRestartButtonVisibility(wsClient, visible) {
         messageToClient = {};
         messageToClient["type"] = "update-restart-button-visibility";
-        messageToClient["content"] = visible ?? false;
+        messageToClient["content"] = visible;
         messageToClientRaw = JSON.stringify(messageToClient);
         wsClient.send(messageToClientRaw);
     }
@@ -1023,12 +1023,12 @@ wss.on("connection", (ws, req) => {
         messageToClient["type"] = "update-player-slot";
         messageToClient["content"] = {};
 
-        messageToClient["content"]["player1"] = clientsName[rooms[roomId]["player1"]] ?? "";
+        messageToClient["content"]["player1"] = clientsName[rooms[roomId]["player1"]] != null ? clientsName[rooms[roomId]["player1"]] : "";
         messageToClient["content"]["player1ReadyButtonVisibility"] = ((rooms[roomId]["player1"] == ipPort) && (!rooms[roomId]["player1Ready"])) ? true : false;
         messageToClient["content"]["player1QuitButtonVisibility"] = rooms[roomId]["player1"] == ipPort ? true : false;
         messageToClient["content"]["player1JoinButtonVisibility"] = rooms[roomId]["player1"] == null ? true : false;
 
-        messageToClient["content"]["player2"] = clientsName[rooms[roomId]["player2"]] ?? "";
+        messageToClient["content"]["player2"] = clientsName[rooms[roomId]["player2"]] != null ? clientsName[rooms[roomId]["player2"]] : "";
         messageToClient["content"]["player2ReadyButtonVisibility"] = ((rooms[roomId]["player2"] == ipPort) && (!rooms[roomId]["player2Ready"])) ? true : false;
         messageToClient["content"]["player2QuitButtonVisibility"] = rooms[roomId]["player2"] == ipPort ? true : false;
         messageToClient["content"]["player2JoinButtonVisibility"] = rooms[roomId]["player2"] == null ? true : false;

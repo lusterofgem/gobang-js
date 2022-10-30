@@ -8,8 +8,7 @@
 // - restart-game
 // - put-chess
 // - chat
-// - request-player1
-// - request-player2
+// - request-player-slot
 // - quit-player1
 // - quit-player2
 // - player1-ready
@@ -171,7 +170,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     player1JoinButton?.addEventListener("click", () => {
         let message = {};
-        message["type"] = "request-player1";
+        message["type"] = "request-player-slot";
+        message["content"] = "player1";
         let messageRaw = JSON.stringify(message);
         ws.send(messageRaw);
     });
@@ -192,7 +192,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     player2JoinButton?.addEventListener("click", () => {
         let message = {};
-        message["type"] = "request-player2";
+        message["type"] = "request-player-slot";
+        message["content"] = "player2";
         let messageRaw = JSON.stringify(message);
         ws.send(messageRaw);
     });

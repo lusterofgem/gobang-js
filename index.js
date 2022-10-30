@@ -703,14 +703,6 @@ wss.on("connection", (ws, req) => {
 
                     // join player1 slot
                     rooms[roomId]["player1"] = clientIpPort;
-
-                    // notify all clients in the same room to update player slot
-                    wss.clients.forEach((client) => {
-                        let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
-                        if(rooms[roomId]["players"].includes(ipPort)) {
-                            notifyClientUpdatePlayerSlot(client, roomId);
-                        }
-                    });
                 } else {
                     // if the request client is not in the room or player2 is not empty, return
                     if(!rooms[roomId]["players"].includes(clientIpPort) || rooms[roomId]["player2"] != null) {
@@ -725,15 +717,15 @@ wss.on("connection", (ws, req) => {
 
                     // join player2 slot
                     rooms[roomId]["player2"] = clientIpPort;
-
-                    // notify all clients in the same room to update player slot
-                    wss.clients.forEach((client) => {
-                        let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
-                        if(rooms[roomId]["players"].includes(ipPort)) {
-                            notifyClientUpdatePlayerSlot(client, roomId);
-                        }
-                    });
                 }
+
+                // notify all clients in the same room to update player slot
+                wss.clients.forEach((client) => {
+                    let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
+                    if(rooms[roomId]["players"].includes(ipPort)) {
+                        notifyClientUpdatePlayerSlot(client, roomId);
+                    }
+                });
 
                 break;
             }

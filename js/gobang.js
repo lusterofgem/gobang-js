@@ -17,7 +17,7 @@
 // - login-failed
 //
 // - sync-rooms
-// - join-room
+// - update-room-id
 //
 // - update-current-color
 // - update-restart-button-visibility
@@ -283,7 +283,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
                 break;
             }
-            case "join-room": {
+            case "update-room-id": {
                 let roomId = message["content"];
                 roomPage.style.display = "none";
                 battlePage.style.display = "block";

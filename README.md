@@ -23,15 +23,15 @@ e.g.
 
 ## status
 
+we are fixing bugs! 🚧
+
+login-page: ready ✔️
+
+room-page: ready ✔️
+
 chat-box: ready ✔️
 
-checkerboard: in-progress 🚧
-
-identify different players: ready ✔️
-
-hub: ready ✔️
-
-battle room: ready ✔️
+checkerboard: ready ✔️
 
 ## client to server message
 

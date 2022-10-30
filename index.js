@@ -78,24 +78,6 @@ wss.on("connection", (ws, req) => {
 
     console.log(`${clientIpPort} connected!`);
 
-    // notify client to sync checkerboard
-    // message = {};
-    // message["type"] = "sync-checkerboard";
-    // message["content"] = checkerboard;
-    // messageRaw = JSON.stringify(message);
-    // wss.clients.forEach((client) => {
-    //     client.send(messageRaw);
-    // });
-
-    // notify client to sync winner
-    // message = {};
-    // message["type"] = "sync-winner";
-    // message["content"] = winner;
-    // messageRaw = JSON.stringify(message);
-    // wss.clients.forEach((client) => {
-    //     client.send(messageRaw);
-    // });
-
     ws.on("message", (buffer) => {
         const messageRaw = buffer.toString();
         // console.log(messageRaw);
@@ -664,7 +646,6 @@ wss.on("connection", (ws, req) => {
                 }
 
                 if(rooms[roomId]["winner"] !== "") {
-                    console.log(rooms[roomId]["winner"]); //debug!!
                     // notify client to sync winner
                     let messageToClient = {};
                     messageToClient["type"] = "sync-winner";

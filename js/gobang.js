@@ -321,7 +321,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 break;
             }
             case "sync-player-slot": {
-                console.dir(message["content"]); //debug!!
                 let player1Name = message["content"]["player1"] ?? "";
                 let player2Name = message["content"]["player2"] ?? "";
                 let clientIsPlayer1 = message["content"]["clientIsPlayer1"] ?? false;

@@ -1042,10 +1042,10 @@ wss.on("connection", (ws, req) => {
         let roomsInfo = [];
         for(let i = 0; i < rooms.length; ++i) {
             if(rooms[i] == null) {
-                roomsInfo = null;
+                roomsInfo[i] = null;
                 continue;
             }
-            roomsInfo[i] = {};
+            roomsInfo.push({});
         }
         messageToClient = {};
         messageToClient["type"] = "sync-rooms";

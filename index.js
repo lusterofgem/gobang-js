@@ -21,9 +21,9 @@ app.listen(port);
 // - sync-rooms
 // - join-room
 //
+// - change-restart-button-visibility
 // - put-chess
 // - sync-checkerboard
-// - sync-winner
 // - sync-current-color
 // - sync-player-slot
 // - chat
@@ -102,7 +102,7 @@ wss.on("connection", (ws, req) => {
                         let messageToClientRaw = JSON.stringify(messageToClient);
                         ws.send(messageToClientRaw);
 
-                        messageClientSyncRooms(ws);
+                        notifyClientSyncRooms(ws);
                     }
                 } else { //empty name
                     let messageToClient = {};
@@ -157,7 +157,7 @@ wss.on("connection", (ws, req) => {
                 ws.send(messageToClientRaw);
 
                 // notify the client to update player slot
-                messageClientSyncPlayerSlot(ws, roomId);
+                notifyClientSyncPlayerSlot(ws, roomId);
 
                 // notify all clients in the room page to sync rooms
                 wss.clients.forEach((client) => {
@@ -180,7 +180,7 @@ wss.on("connection", (ws, req) => {
                     }
 
                     // send message
-                    messageClientSyncRooms(client);
+                    notifyClientSyncRooms(client);
                 });
 
                 // greeting to player in the same room
@@ -216,12 +216,8 @@ wss.on("connection", (ws, req) => {
                 let messageToClientRaw = JSON.stringify(messageToClient);
                 ws.send(messageToClientRaw);
 
-                // notify client to sync winner
-                messageToClient = {};
-                messageToClient["type"] = "sync-winner";
-                messageToClient["content"] = rooms[roomId]["winner"];
-                messageToClientRaw = JSON.stringify(messageToClient);
-                ws.send(messageToClientRaw);
+                // notify client to change restart button visibility
+                notifyClientChangeRestartButtonVisibility(ws, false);
 
                 // notify the client to sync checkerboard
                 messageToClient = {};
@@ -231,7 +227,7 @@ wss.on("connection", (ws, req) => {
                 ws.send(messageToClientRaw);
 
                 // notify the client to update player slot
-                messageClientSyncPlayerSlot(ws, roomId);
+                notifyClientSyncPlayerSlot(ws, roomId);
 
                 // greeting to player in the same room
                 messageToClient = {};
@@ -274,8 +270,9 @@ wss.on("connection", (ws, req) => {
                     }
                 });
 
-                // if it is not game over yet, the opponent wins the game
-                if(rooms[roomId]["winner"] === "") {
+                // if the player is player1 or player2 and the game has started
+                if((clientIpPort == rooms[roomId]["player1"] || clientIpPort == rooms[roomId]["player2"]) && rooms[roomId]["winner"] === "") {
+                    // if it is not game over yet, the opponent wins the game
                     let opponentIpPort = rooms[roomId]["player1"] == clientIpPort ? rooms[roomId]["player2"] : rooms[roomId]["player1"];
                     rooms[roomId]["winner"] = opponentIpPort == rooms[roomId]["player1"] ? "player1" : "player2";
 
@@ -284,18 +281,6 @@ wss.on("connection", (ws, req) => {
                     messageToClient["type"] = "chat";
                     messageToClient["content"] = `[server] ${clientsName[opponentIpPort]} wins!`;
                     let messageToClientRaw = JSON.stringify(messageToClient);
-                    wss.clients.forEach((client) => {
-                        let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
-                        if(rooms[roomId]["players"].includes(ipPort)) {
-                            client.send(messageToClientRaw);
-                        }
-                    });
-
-                    // notify all clients to sync winner
-                    messageToClient = {};
-                    messageToClient["type"] = "sync-winner";
-                    messageToClient["content"] = opponentIpPort;
-                    messageToClientRaw = JSON.stringify(messageToClient);
                     wss.clients.forEach((client) => {
                         let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
                         if(rooms[roomId]["players"].includes(ipPort)) {
@@ -324,7 +309,7 @@ wss.on("connection", (ws, req) => {
                     wss.clients.forEach((client) => {
                         let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
                         if(rooms[roomId]["players"].includes(ipPort)) {
-                            messageClientSyncPlayerSlot(client, roomId);
+                            notifyClientSyncPlayerSlot(client, roomId);
                         }
                     });
                 } else {
@@ -349,12 +334,12 @@ wss.on("connection", (ws, req) => {
                         }
 
                         // send message
-                        messageClientSyncRooms(client);
+                        notifyClientSyncRooms(client);
                     });
                 }
 
                 // notify the quit client to sync rooms
-                messageClientSyncRooms(ws);
+                notifyClientSyncRooms(ws);
 
                 break;
             }
@@ -426,13 +411,13 @@ wss.on("connection", (ws, req) => {
                     }
                 });
 
-                // notify client to sync winner
-                messageToClient = {};
-                messageToClient["type"] = "sync-winner";
-                messageToClient["content"] = rooms[roomId]["winner"];
-                messageToClientRaw = JSON.stringify(messageToClient);
+                // notify player1 and player2 to change restart button visibility
                 wss.clients.forEach((client) => {
-                    client.send(messageToClientRaw);
+                    let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
+                    // if the client is in this room and it is player1 or player2
+                    if(rooms[roomId]["players"].includes(ipPort) & (ipPort === rooms[roomId]["player1"] || ipPort === rooms[roomId]["player2"])) {
+                        notifyClientChangeRestartButtonVisibility(client, false);
+                    }
                 });
 
                 // notify client to sync current color
@@ -646,13 +631,13 @@ wss.on("connection", (ws, req) => {
                 }
 
                 if(rooms[roomId]["winner"] !== "") {
-                    // notify client to sync winner
-                    let messageToClient = {};
-                    messageToClient["type"] = "sync-winner";
-                    messageToClient["content"] = rooms[roomId]["winner"];
-                    let messageToClientRaw = JSON.stringify(messageToClient);
+                    // notify player1 and player2 to change restart button visibility
                     wss.clients.forEach((client) => {
-                        client.send(messageToClientRaw);
+                        let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
+                        // if the client is in this room and it is player1 or player2
+                        if(rooms[roomId]["players"].includes(ipPort) & (ipPort === rooms[roomId]["player1"] || ipPort === rooms[roomId]["player2"])) {
+                            notifyClientChangeRestartButtonVisibility(client, true);
+                        }
                     });
 
                     // send winning message to chat
@@ -704,7 +689,7 @@ wss.on("connection", (ws, req) => {
                 wss.clients.forEach((client) => {
                     let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
                     if(rooms[roomId]["players"].includes(ipPort)) {
-                        messageClientSyncPlayerSlot(client, roomId);
+                        notifyClientSyncPlayerSlot(client, roomId);
                     }
                 });
 
@@ -775,7 +760,7 @@ wss.on("connection", (ws, req) => {
                 wss.clients.forEach((client) => {
                     let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
                     if(rooms[roomId]["players"].includes(ipPort)) {
-                        messageClientSyncPlayerSlot(client, roomId);
+                        notifyClientSyncPlayerSlot(client, roomId);
                     }
                 });
 
@@ -809,7 +794,7 @@ wss.on("connection", (ws, req) => {
                 wss.clients.forEach((client) => {
                     let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
                     if(rooms[roomId]["players"].includes(ipPort)) {
-                        messageClientSyncPlayerSlot(client, roomId);
+                        notifyClientSyncPlayerSlot(client, roomId);
                     }
                 });
 
@@ -848,7 +833,7 @@ wss.on("connection", (ws, req) => {
                 wss.clients.forEach((client) => {
                     let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
                     if(rooms[roomId]["players"].includes(ipPort)) {
-                        messageClientSyncPlayerSlot(client, roomId);
+                        notifyClientSyncPlayerSlot(client, roomId);
                     }
                 });
 
@@ -919,7 +904,7 @@ wss.on("connection", (ws, req) => {
                 wss.clients.forEach((client) => {
                     let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
                     if(rooms[roomId]["players"].includes(ipPort)) {
-                        messageClientSyncPlayerSlot(client, roomId);
+                        notifyClientSyncPlayerSlot(client, roomId);
                     }
                 });
 
@@ -953,7 +938,7 @@ wss.on("connection", (ws, req) => {
                 wss.clients.forEach((client) => {
                     let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
                     if(rooms[roomId]["players"].includes(ipPort)) {
-                        messageClientSyncPlayerSlot(client, roomId);
+                        notifyClientSyncPlayerSlot(client, roomId);
                     }
                 });
 
@@ -1030,18 +1015,6 @@ wss.on("connection", (ws, req) => {
                     client.send(messageToClientRaw);
                 }
             });
-
-            // notify all clients to sync winner
-            messageToClient = {};
-            messageToClient["type"] = "sync-winner";
-            messageToClient["content"] = opponentIpPort;
-            messageToClientRaw = JSON.stringify(messageToClient);
-            wss.clients.forEach((client) => {
-                let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
-                if(rooms[roomId]["players"].includes(ipPort)) {
-                    client.send(messageToClientRaw);
-                }
-            });
         }
 
         // remove client from room
@@ -1066,7 +1039,7 @@ wss.on("connection", (ws, req) => {
             wss.clients.forEach((client) => {
                 let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
                 if(rooms[roomId]["players"].includes(ipPort)) {
-                    messageClientSyncPlayerSlot(client, roomId);
+                    notifyClientSyncPlayerSlot(client, roomId);
                 }
             });
         } else {
@@ -1091,7 +1064,7 @@ wss.on("connection", (ws, req) => {
                 }
 
                 // send message
-                messageClientSyncRooms(client);
+                notifyClientSyncRooms(client);
             });
         }
 
@@ -1099,8 +1072,18 @@ wss.on("connection", (ws, req) => {
         delete clientsName[clientIpPort];
     });
 
+    // notify client to change restart button visibility
+    function notifyClientChangeRestartButtonVisibility(wsClient, visible) {
+        // notify client to change restart button visibility
+        messageToClient = {};
+        messageToClient["type"] = "change-restart-button-visibility";
+        messageToClient["content"] = visible ?? false;
+        messageToClientRaw = JSON.stringify(messageToClient);
+        ws.send(messageToClientRaw);
+    }
+
     // notify client to sync player slot
-    function messageClientSyncPlayerSlot(wsClient, roomId) {
+    function notifyClientSyncPlayerSlot(wsClient, roomId) {
         let messageToClient = {};
         messageToClient["type"] = "sync-player-slot";
         messageToClient["content"] = {};
@@ -1115,7 +1098,7 @@ wss.on("connection", (ws, req) => {
     }
 
     // notify client to sync rooms
-    function messageClientSyncRooms(wsClient) {
+    function notifyClientSyncRooms(wsClient) {
         let roomsInfo = [];
         for(let i = 0; i < rooms.length; ++i) {
             if(rooms[i] == null) {

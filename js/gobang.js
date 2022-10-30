@@ -22,10 +22,10 @@
 // - sync-rooms
 // - join-room
 //
+// - change-restart-button-visibility
 // - put-chess
 // - sync-checkerboard
 // - sync-player-slot
-// - sync-winner
 // - sync-current-color
 // - chat
 
@@ -340,12 +340,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 break;
             }
-            case "sync-winner": {
-                const winner = message["content"];
-                if(winner === "") {
-                    restartButton.style.visibility = "hidden";
-                } else {
+            case "change-restart-button-visibility": {
+                const visible = message["content"];
+                if(visible == true) {
                     restartButton.style.visibility = "visible";
+                } else {
+                    restartButton.style.visibility = "hidden";
                 }
                 break;
             }

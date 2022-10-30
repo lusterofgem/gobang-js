@@ -22,11 +22,11 @@
 // - sync-rooms
 // - join-room
 //
-// - change-restart-button-visibility
+// - update-restart-button-visibility
 // - put-chess
 // - sync-checkerboard
-// - sync-player-slot
-// - sync-current-color
+// - update-player-slot
+// - update-current-color
 // - chat
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -52,11 +52,11 @@ document.addEventListener("DOMContentLoaded", () => {
     let player1NameLabel = document.getElementById("player1-name-label");
     let player1ReadyButton = document.getElementById("player1-ready-button");
     let player1QuitButton = document.getElementById("player1-quit-button");
-    let player1Button = document.getElementById("player1-button");
+    let player1JoinButton = document.getElementById("player1-join-button");
     let player2NameLabel = document.getElementById("player2-name-label");
     let player2ReadyButton = document.getElementById("player2-ready-button");
     let player2QuitButton = document.getElementById("player2-quit-button");
-    let player2Button = document.getElementById("player2-button");
+    let player2JoinButton = document.getElementById("player2-join-button");
     let textArea = document.getElementById("text-area");
     let textInput = document.getElementById("text-input");
     let textButton = document.getElementById("text-button");
@@ -169,7 +169,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ws.send(messageRaw);
     });
 
-    player1Button?.addEventListener("click", () => {
+    player1JoinButton?.addEventListener("click", () => {
         let message = {};
         message["type"] = "request-player1";
         let messageRaw = JSON.stringify(message);
@@ -190,7 +190,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ws.send(messageRaw);
     });
 
-    player2Button?.addEventListener("click", () => {
+    player2JoinButton?.addEventListener("click", () => {
         let message = {};
         message["type"] = "request-player2";
         let messageRaw = JSON.stringify(message);
@@ -301,7 +301,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 break;
             }
-            case "sync-current-color": {
+            case "update-current-color": {
                 const color = message["content"];
                 chessColorImage.src = `/assets/images/${color}.png`;
                 break;
@@ -320,27 +320,22 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
                 break;
             }
-            case "sync-player-slot": {
-                let player1Name = message["content"]["player1"] ?? "";
-                let player2Name = message["content"]["player2"] ?? "";
-                let clientIsPlayer1 = message["content"]["clientIsPlayer1"] ?? false;
-                let clientIsPlayer2 = message["content"]["clientIsPlayer2"] ?? false;
-                let player1Ready = message["content"]["player1Ready"] ?? false;
-                let player2Ready = message["content"]["player2Ready"] ?? false;
+            case "update-player-slot": {
+                console.dir(message["content"]); //debug!!
 
-                player1NameLabel.innerText = player1Name;
-                player1Button.style.display = player1Name == "" ? "block" : "none";
-                player1ReadyButton.style.display = (clientIsPlayer1 && !player1Ready) ? "block" : "none";
-                player1QuitButton.style.display = clientIsPlayer1 ? "block" : "none";
+                player1NameLabel.innerText = message["content"]["player1"];
+                player1JoinButton.style.display = message["content"]["player1JoinButtonVisibility"] ? "block" : "none";
+                player1ReadyButton.style.display = message["content"]["player1ReadyButtonVisibility"] ? "block" : "none";
+                player1QuitButton.style.display = message["content"]["player1QuitButtonVisibility"] ? "block" : "none";
 
-                player2NameLabel.innerText = player2Name;
-                player2Button.style.display = player2Name == "" ? "block" : "none";
-                player2ReadyButton.style.display = (clientIsPlayer2 && !player2Ready) ? "block" : "none";
-                player2QuitButton.style.display = clientIsPlayer2 ? "block" : "none";
+                player2NameLabel.innerText = message["content"]["player2"];
+                player2JoinButton.style.display = message["content"]["player2JoinButtonVisibility"] ? "block" : "none";
+                player2ReadyButton.style.display = message["content"]["player2ReadyButtonVisibility"] ? "block" : "none";
+                player2QuitButton.style.display = message["content"]["player2QuitButtonVisibility"] ? "block" : "none";
 
                 break;
             }
-            case "change-restart-button-visibility": {
+            case "update-restart-button-visibility": {
                 const visible = message["content"];
                 if(visible == true) {
                     restartButton.style.visibility = "visible";

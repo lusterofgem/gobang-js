@@ -24,8 +24,8 @@ app.listen(port);
 // - change-restart-button-visibility
 // - put-chess
 // - sync-checkerboard
-// - sync-current-color
-// - sync-player-slot
+// - update-current-color
+// - update-player-slot
 // - chat
 
 // [input message]
@@ -157,7 +157,7 @@ wss.on("connection", (ws, req) => {
                 ws.send(messageToClientRaw);
 
                 // notify the client to update player slot
-                notifyClientSyncPlayerSlot(ws, roomId);
+                notifyClientUpdatePlayerSlot(ws, roomId);
 
                 // notify all clients in the room page to sync rooms
                 wss.clients.forEach((client) => {
@@ -216,8 +216,8 @@ wss.on("connection", (ws, req) => {
                 let messageToClientRaw = JSON.stringify(messageToClient);
                 ws.send(messageToClientRaw);
 
-                // notify client to change restart button visibility
-                notifyClientChangeRestartButtonVisibility(ws, false);
+                // notify client to update restart button visibility
+                notifyClientUpdateRestartButtonVisibility(ws, false);
 
                 // notify the client to sync checkerboard
                 messageToClient = {};
@@ -227,7 +227,7 @@ wss.on("connection", (ws, req) => {
                 ws.send(messageToClientRaw);
 
                 // notify the client to update player slot
-                notifyClientSyncPlayerSlot(ws, roomId);
+                notifyClientUpdatePlayerSlot(ws, roomId);
 
                 // greeting to player in the same room
                 messageToClient = {};
@@ -276,7 +276,7 @@ wss.on("connection", (ws, req) => {
                     let opponentIpPort = rooms[roomId]["player1"] == clientIpPort ? rooms[roomId]["player2"] : rooms[roomId]["player1"];
                     rooms[roomId]["winner"] = opponentIpPort == rooms[roomId]["player1"] ? "player1" : "player2";
 
-                    // hint all players in the room
+                    // hint all players in the room who wins
                     let messageToClient = {};
                     messageToClient["type"] = "chat";
                     messageToClient["content"] = `[server] ${clientsName[opponentIpPort]} wins!`;
@@ -306,10 +306,15 @@ wss.on("connection", (ws, req) => {
 
                 // if the room not yet deleted, notify all clients in the same room to update player slot
                 if(rooms[roomId] != null) {
+                    // reset player1 and player2 ready state
+                    delete rooms[roomId]["player1Ready"];
+                    delete rooms[roomId]["player2Ready"];
+
+                    // notify all clients in the room to update player slot
                     wss.clients.forEach((client) => {
                         let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
                         if(rooms[roomId]["players"].includes(ipPort)) {
-                            notifyClientSyncPlayerSlot(client, roomId);
+                            notifyClientUpdatePlayerSlot(client, roomId);
                         }
                     });
                 } else {
@@ -416,13 +421,13 @@ wss.on("connection", (ws, req) => {
                     let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
                     // if the client is in this room and it is player1 or player2
                     if(rooms[roomId]["players"].includes(ipPort) & (ipPort === rooms[roomId]["player1"] || ipPort === rooms[roomId]["player2"])) {
-                        notifyClientChangeRestartButtonVisibility(client, false);
+                        notifyClientUpdateRestartButtonVisibility(client, false);
                     }
                 });
 
                 // notify client to sync current color
                 messageToClient = {};
-                messageToClient["type"] = "sync-current-color";
+                messageToClient["type"] = "update-current-color";
                 messageToClient["content"] = "black"
                 messageToClientRaw = JSON.stringify(messageToClient);
                 wss.clients.forEach((client) => {
@@ -519,7 +524,7 @@ wss.on("connection", (ws, req) => {
 
                 // notify client to sync current color
                 messageToClient = {};
-                messageToClient["type"] = "sync-current-color";
+                messageToClient["type"] = "update-current-color";
                 messageToClient["content"] = currentColor;
                 messageToClientRaw = JSON.stringify(messageToClient);
                 wss.clients.forEach((client) => {
@@ -635,8 +640,8 @@ wss.on("connection", (ws, req) => {
                     wss.clients.forEach((client) => {
                         let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
                         // if the client is in this room and it is player1 or player2
-                        if(rooms[roomId]["players"].includes(ipPort) & (ipPort === rooms[roomId]["player1"] || ipPort === rooms[roomId]["player2"])) {
-                            notifyClientChangeRestartButtonVisibility(client, true);
+                        if(rooms[roomId]["players"].includes(ipPort) && (ipPort === rooms[roomId]["player1"] || ipPort === rooms[roomId]["player2"])) {
+                            notifyClientUpdateRestartButtonVisibility(client, true);
                         }
                     });
 
@@ -679,7 +684,7 @@ wss.on("connection", (ws, req) => {
                 // if the player is already in the player2 slot, remove from player2 slot
                 if(rooms[roomId]["player2"] == clientIpPort) {
                     delete rooms[roomId]["player2"];
-                    rooms[roomId]["player2Ready"] = false;
+                    delete rooms[roomId]["player2Ready"];
                 }
 
                 // join player1 slot
@@ -689,7 +694,7 @@ wss.on("connection", (ws, req) => {
                 wss.clients.forEach((client) => {
                     let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
                     if(rooms[roomId]["players"].includes(ipPort)) {
-                        notifyClientSyncPlayerSlot(client, roomId);
+                        notifyClientUpdatePlayerSlot(client, roomId);
                     }
                 });
 
@@ -756,11 +761,11 @@ wss.on("connection", (ws, req) => {
                     });
                 }
 
-                // notify all clients in the same room to sync player slot
+                // notify all clients in the same room to update player slot
                 wss.clients.forEach((client) => {
                     let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
                     if(rooms[roomId]["players"].includes(ipPort)) {
-                        notifyClientSyncPlayerSlot(client, roomId);
+                        notifyClientUpdatePlayerSlot(client, roomId);
                     }
                 });
 
@@ -788,13 +793,13 @@ wss.on("connection", (ws, req) => {
 
                 // remove player1 information
                 delete rooms[roomId]["player1"];
-                rooms[roomId]["player1Ready"] = false;
+                delete rooms[roomId]["player1Ready"];
 
                 // notify all clients in the same room to update player slot
                 wss.clients.forEach((client) => {
                     let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
                     if(rooms[roomId]["players"].includes(ipPort)) {
-                        notifyClientSyncPlayerSlot(client, roomId);
+                        notifyClientUpdatePlayerSlot(client, roomId);
                     }
                 });
 
@@ -833,7 +838,7 @@ wss.on("connection", (ws, req) => {
                 wss.clients.forEach((client) => {
                     let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
                     if(rooms[roomId]["players"].includes(ipPort)) {
-                        notifyClientSyncPlayerSlot(client, roomId);
+                        notifyClientUpdatePlayerSlot(client, roomId);
                     }
                 });
 
@@ -904,7 +909,7 @@ wss.on("connection", (ws, req) => {
                 wss.clients.forEach((client) => {
                     let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
                     if(rooms[roomId]["players"].includes(ipPort)) {
-                        notifyClientSyncPlayerSlot(client, roomId);
+                        notifyClientUpdatePlayerSlot(client, roomId);
                     }
                 });
 
@@ -938,7 +943,7 @@ wss.on("connection", (ws, req) => {
                 wss.clients.forEach((client) => {
                     let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
                     if(rooms[roomId]["players"].includes(ipPort)) {
-                        notifyClientSyncPlayerSlot(client, roomId);
+                        notifyClientUpdatePlayerSlot(client, roomId);
                     }
                 });
 
@@ -1039,7 +1044,7 @@ wss.on("connection", (ws, req) => {
             wss.clients.forEach((client) => {
                 let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
                 if(rooms[roomId]["players"].includes(ipPort)) {
-                    notifyClientSyncPlayerSlot(client, roomId);
+                    notifyClientUpdatePlayerSlot(client, roomId);
                 }
             });
         } else {
@@ -1072,27 +1077,33 @@ wss.on("connection", (ws, req) => {
         delete clientsName[clientIpPort];
     });
 
-    // notify client to change restart button visibility
-    function notifyClientChangeRestartButtonVisibility(wsClient, visible) {
-        // notify client to change restart button visibility
+    // notify client to update restart button visibility
+    function notifyClientUpdateRestartButtonVisibility(wsClient, visible) {
         messageToClient = {};
-        messageToClient["type"] = "change-restart-button-visibility";
+        messageToClient["type"] = "update-restart-button-visibility";
         messageToClient["content"] = visible ?? false;
         messageToClientRaw = JSON.stringify(messageToClient);
-        ws.send(messageToClientRaw);
+        wsClient.send(messageToClientRaw);
     }
 
-    // notify client to sync player slot
-    function notifyClientSyncPlayerSlot(wsClient, roomId) {
+    // notify client to update player slot
+    function notifyClientUpdatePlayerSlot(wsClient, roomId) {
+        let ipPort = `${wsClient["_socket"]["_peername"]["address"]}:${wsClient["_socket"]["_peername"]["port"]}`;
+
         let messageToClient = {};
-        messageToClient["type"] = "sync-player-slot";
+        messageToClient["type"] = "update-player-slot";
         messageToClient["content"] = {};
-        messageToClient["content"]["player1"] = clientsName[rooms[roomId]["player1"]];
-        messageToClient["content"]["player2"] = clientsName[rooms[roomId]["player2"]];
-        messageToClient["content"]["clientIsPlayer1"] = rooms[roomId]["player1"] === clientIpPort;
-        messageToClient["content"]["clientIsPlayer2"] = rooms[roomId]["player2"] === clientIpPort;
-        messageToClient["content"]["player1Ready"] = rooms[roomId]["player1Ready"];
-        messageToClient["content"]["player2Ready"] = rooms[roomId]["player2Ready"];
+
+        messageToClient["content"]["player1"] = clientsName[rooms[roomId]["player1"]] ?? "";
+        messageToClient["content"]["player1ReadyButtonVisibility"] = ((rooms[roomId]["player1"] == ipPort) && (!rooms[roomId]["player1Ready"])) ? true : false;
+        messageToClient["content"]["player1QuitButtonVisibility"] = rooms[roomId]["player1"] == ipPort ? true : false;
+        messageToClient["content"]["player1JoinButtonVisibility"] = rooms[roomId]["player1"] == null ? true : false;
+
+        messageToClient["content"]["player2"] = clientsName[rooms[roomId]["player2"]] ?? "";
+        messageToClient["content"]["player2ReadyButtonVisibility"] = ((rooms[roomId]["player2"] == ipPort) && (!rooms[roomId]["player2Ready"])) ? true : false;
+        messageToClient["content"]["player2QuitButtonVisibility"] = rooms[roomId]["player2"] == ipPort ? true : false;
+        messageToClient["content"]["player2JoinButtonVisibility"] = rooms[roomId]["player2"] == null ? true : false;
+
         let messageToClientRaw = JSON.stringify(messageToClient);
         wsClient.send(messageToClientRaw);
     }

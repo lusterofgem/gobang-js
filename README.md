@@ -23,7 +23,7 @@ e.g.
 
 ## status
 
-we are fixing bugs! 🚧
+fixing ui: on progress 🚧
 
 login-page: ready ✔️
 
@@ -32,6 +32,8 @@ room-page: ready ✔️
 checkerboard: ready ✔️
 
 chat-box: ready ✔️
+
+fixing bug: ready ✔️
 
 ## client to server message
 

@@ -130,8 +130,6 @@ wss.on("connection", (ws, req) => {
 
                 // create room
                 rooms[roomId] = {};
-                rooms[roomId]["currentRound"] = (Math.random() > 0.5) ? "player1" : "player2";
-                rooms[roomId]["player1Color"] = rooms[roomId]["currentRound"] == "player1" ? "black" : "white";
                 rooms[roomId]["checkerboard"] = [];
                 for(let i = 0; i < mapSize; ++i) {
                     rooms[roomId]["checkerboard"][i] = [];
@@ -523,24 +521,6 @@ wss.on("connection", (ws, req) => {
                     }
                 });
 
-                // change turn
-                if(rooms[roomId]["currentRound"] == "player1") {
-                    rooms[roomId]["currentRound"] = "player2";
-                } else {
-                    rooms[roomId]["currentRound"] = "player1";
-                }
-                currentColor = currentColor == "black" ? "white" : "black";
-
-                // notify client to sync current color
-                messageToClient = {};
-                messageToClient["type"] = "update-current-color";
-                messageToClient["content"] = currentColor;
-                messageToClientRaw = JSON.stringify(messageToClient);
-                wss.clients.forEach((client) => {
-                    client.send(messageToClientRaw);
-                });
-
-
                 // check winner
                 // shape1
                 // *
@@ -559,7 +539,7 @@ wss.on("connection", (ws, req) => {
                                 break;
                             }
                             if(k === 4) {
-                                rooms[roomId]["winner"] = rooms[roomId]["firstColor"] == "player1Color" ? "player1" : "player2";
+                                rooms[roomId]["winner"] = firstColor == rooms[roomId]["player1Color"] ? "player1" : "player2";
                             }
                         }
                     }
@@ -581,7 +561,7 @@ wss.on("connection", (ws, req) => {
                                 break;
                             }
                             if(k === 4) {
-                                rooms[roomId]["winner"] = rooms[roomId]["firstColor"] == "player1Color" ? "player1" : "player2";
+                                rooms[roomId]["winner"] = firstColor == rooms[roomId]["player1Color"] ? "player1" : "player2";
                             }
                         }
                     }
@@ -603,7 +583,7 @@ wss.on("connection", (ws, req) => {
                                 break;
                             }
                             if(k === 4) {
-                                rooms[roomId]["winner"] = rooms[roomId]["firstColor"] == "player1Color" ? "player1" : "player2";
+                                rooms[roomId]["winner"] = firstColor == rooms[roomId]["player1Color"] ? "player1" : "player2";
                             }
                         }
                     }
@@ -621,7 +601,7 @@ wss.on("connection", (ws, req) => {
                                 break;
                             }
                             if(k === 4) {
-                                rooms[roomId]["winner"] = rooms[roomId]["firstColor"] == "player1Color" ? "player1" : "player2";
+                                rooms[roomId]["winner"] = firstColor == rooms[roomId]["player1Color"] ? "player1" : "player2";
                             }
                         }
                     }
@@ -640,6 +620,7 @@ wss.on("connection", (ws, req) => {
                     rooms[roomId]["winner"] = "draw";
                 }
 
+                // if the game is game over
                 if(rooms[roomId]["winner"] !== "") {
                     // notify player1 and player2 to change restart button visibility
                     wss.clients.forEach((client) => {
@@ -666,6 +647,23 @@ wss.on("connection", (ws, req) => {
                         }
                     });
                 }
+
+                // change turn
+                if(rooms[roomId]["currentRound"] == "player1") {
+                    rooms[roomId]["currentRound"] = "player2";
+                } else {
+                    rooms[roomId]["currentRound"] = "player1";
+                }
+
+                // notify client to update current color
+                let nextColor = currentColor == "black" ? "white" : "black";
+                messageToClient = {};
+                messageToClient["type"] = "update-current-color";
+                messageToClient["content"] = nextColor;
+                messageToClientRaw = JSON.stringify(messageToClient);
+                wss.clients.forEach((client) => {
+                    client.send(messageToClientRaw);
+                });
 
                 break;
             }

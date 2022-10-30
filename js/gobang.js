@@ -11,8 +11,7 @@
 // - request-player-slot
 // - quit-player1
 // - quit-player2
-// - player1-ready
-// - player2-ready
+// - player-ready
 
 // [input message]
 // - login-successful
@@ -156,7 +155,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     player1ReadyButton?.addEventListener("click", () => {
         let message = {};
-        message["type"] = "player1-ready";
+        message["type"] = "player-ready";
+        message["content"] = "player1";
         let messageRaw = JSON.stringify(message);
         ws.send(messageRaw);
     });
@@ -178,7 +178,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     player2ReadyButton?.addEventListener("click", () => {
         let message = {};
-        message["type"] = "player2-ready";
+        message["type"] = "player-ready";
+        message["content"] = "player2";
         let messageRaw = JSON.stringify(message);
         ws.send(messageRaw);
     });

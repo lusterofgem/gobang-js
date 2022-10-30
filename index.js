@@ -850,15 +850,20 @@ wss.on("connection", (ws, req) => {
                     });
                 }
 
+                // notify player1 and player2 to update the restart button
+                wss.clients.forEach((client) => {
+                    let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
+                    if(ipPort === rooms[roomId]["player1"] || ipPort === rooms[roomId]["player2"]) {
+                        notifyClientUpdateRestartButtonVisibility(client, false);
+                    }
+                });
+
                 // remove the specified player information from the room
                 delete rooms[roomId][requestedPlayerSlot];
 
                 // unready the two players
                 delete rooms[roomId]["player1Ready"];
                 delete rooms[roomId]["player2Ready"];
-
-                // update the restart button for the quiting client
-                notifyClientUpdateRestartButtonVisibility(ws, false);
 
                 // notify all clients in the same room to update player slot
                 wss.clients.forEach((client) => {

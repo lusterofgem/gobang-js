@@ -21,10 +21,10 @@ app.listen(port);
 // - sync-rooms
 // - join-room
 //
-// - change-restart-button-visibility
-// - put-chess
-// - sync-checkerboard
 // - update-current-color
+// - update-restart-button-visibility
+// - sync-checkerboard
+// - put-chess
 // - update-player-slot
 // - chat
 
@@ -37,10 +37,10 @@ app.listen(port);
 // - quit-room
 // - restart-game
 // - put-chess
-// - chat
 // - request-player-slot
 // - player-ready
 // - quit-player-slot
+// - chat
 
 const wss = new ws.WebSocketServer({port: wsPort});
 
@@ -79,7 +79,6 @@ wss.on("connection", (ws, req) => {
 
     ws.on("message", (buffer) => {
         const messageRaw = buffer.toString();
-        // console.log(messageRaw);
         const message = JSON.parse(messageRaw);
 
         console.log(`recieved message: ${message["type"]}`); //debug!!
@@ -466,8 +465,6 @@ wss.on("connection", (ws, req) => {
                 }
 
                 // if the client is not the current round player, return
-                console.log(rooms[roomId]["currentRound"]);
-                console.log(rooms[roomId][rooms[roomId]["currentRound"]]);
                 if(rooms[roomId][rooms[roomId]["currentRound"]] !== clientIpPort) {
                     return;
                 }
@@ -555,7 +552,6 @@ wss.on("connection", (ws, req) => {
                             }
                             if(k === 4) {
                                 rooms[roomId]["winner"] = rooms[roomId]["firstColor"] == "player1Color" ? "player1" : "player2";
-                                console.log(`winner is ${rooms[roomId]["winner"]}, shape1`); //debug!!
                             }
                         }
                     }
@@ -578,7 +574,6 @@ wss.on("connection", (ws, req) => {
                             }
                             if(k === 4) {
                                 rooms[roomId]["winner"] = rooms[roomId]["firstColor"] == "player1Color" ? "player1" : "player2";
-                                console.log(`winner is ${rooms[roomId]["winner"]}, shape2`); //debug!!
                             }
                         }
                     }
@@ -601,7 +596,6 @@ wss.on("connection", (ws, req) => {
                             }
                             if(k === 4) {
                                 rooms[roomId]["winner"] = rooms[roomId]["firstColor"] == "player1Color" ? "player1" : "player2";
-                                console.log(`winner is ${rooms[roomId]["winner"]}, shape3`); //debug!!
                             }
                         }
                     }
@@ -620,7 +614,6 @@ wss.on("connection", (ws, req) => {
                             }
                             if(k === 4) {
                                 rooms[roomId]["winner"] = rooms[roomId]["firstColor"] == "player1Color" ? "player1" : "player2";
-                                console.log(`winner is ${rooms[roomId]["winner"]}, shape4`); //debug!!
                             }
                         }
                     }

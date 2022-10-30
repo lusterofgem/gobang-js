@@ -7,10 +7,10 @@
 // - quit-room
 // - restart-game
 // - put-chess
-// - chat
 // - request-player-slot
 // - player-ready
 // - quit-player-slot
+// - chat
 
 // [input message]
 // - login-successful
@@ -19,11 +19,11 @@
 // - sync-rooms
 // - join-room
 //
-// - update-restart-button-visibility
-// - put-chess
-// - sync-checkerboard
-// - update-player-slot
 // - update-current-color
+// - update-restart-button-visibility
+// - sync-checkerboard
+// - put-chess
+// - update-player-slot
 // - chat
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -292,21 +292,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 break;
             }
-            case "put-chess": {
-                const point = message["content"].split(",");
-                const x = parseInt(point[0]);
-                const y = parseInt(point[1]);
-                const color = point[2];
-                if(!Number.isInteger(x) || !Number.isInteger(y)) {
-                    return;
-                }
-                putChess(x, y, color);
-
-                break;
-            }
             case "update-current-color": {
                 const color = message["content"];
                 chessColorImage.src = `/assets/images/${color}.png`;
+                break;
+            }
+            case "update-restart-button-visibility": {
+                const visible = message["content"];
+                if(visible == true) {
+                    restartButton.style.visibility = "visible";
+                } else {
+                    restartButton.style.visibility = "hidden";
+                }
                 break;
             }
             case "sync-checkerboard": {
@@ -323,6 +320,18 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
                 break;
             }
+            case "put-chess": {
+                const point = message["content"].split(",");
+                const x = parseInt(point[0]);
+                const y = parseInt(point[1]);
+                const color = point[2];
+                if(!Number.isInteger(x) || !Number.isInteger(y)) {
+                    return;
+                }
+                putChess(x, y, color);
+
+                break;
+            }
             case "update-player-slot": {
                 console.dir(message["content"]); //debug!!
 
@@ -336,15 +345,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 player2ReadyButton.style.display = message["content"]["player2ReadyButtonVisibility"] ? "block" : "none";
                 player2QuitButton.style.display = message["content"]["player2QuitButtonVisibility"] ? "block" : "none";
 
-                break;
-            }
-            case "update-restart-button-visibility": {
-                const visible = message["content"];
-                if(visible == true) {
-                    restartButton.style.visibility = "visible";
-                } else {
-                    restartButton.style.visibility = "hidden";
-                }
                 break;
             }
             case "chat": {

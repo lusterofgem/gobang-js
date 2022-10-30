@@ -210,7 +210,7 @@ wss.on("connection", (ws, req) => {
 
                 // notify client to update current color
                 let player1Color = rooms[roomId]["player1Color"];
-                let player2Color = rooms[roomId]["player2Color"] === "black" ? "black" : "white";
+                let player2Color = player1Color === "black" ? "white" : "black";
                 let messageToClient = {};
                 messageToClient["type"] = "update-current-color";
                 messageToClient["content"] = rooms[roomId]["currentRound"] === "player1" ? player1Color : player2Color;

@@ -388,8 +388,6 @@ wss.on("connection", (ws, req) => {
 
                 // reset the game
                 rooms[roomId]["winner"] = "";
-                delete rooms[roomId]["player1Ready"];
-                delete rooms[roomId]["player2Ready"];
                 rooms[roomId]["currentRound"] = (Math.random() > 0.5) ? "player1" : "player2";
                 rooms[roomId]["player1Color"] = rooms[roomId]["currentRound"] == "player1" ? "black" : "white";
 
@@ -779,7 +777,7 @@ wss.on("connection", (ws, req) => {
                         }
                     }
 
-                    // notify all client to sync checkerboard
+                    // notify all clients in the room to sync checkerboard
                     let messageToClient = {};
                     messageToClient["type"] = "sync-checkerboard";
                     messageToClient["content"] = rooms[roomId]["checkerboard"];

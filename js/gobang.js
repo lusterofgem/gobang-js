@@ -9,9 +9,8 @@
 // - put-chess
 // - chat
 // - request-player-slot
-// - quit-player1
-// - quit-player2
 // - player-ready
+// - quit-player-slot
 
 // [input message]
 // - login-successful
@@ -163,7 +162,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     player1QuitButton?.addEventListener("click", () => {
         let message = {};
-        message["type"] = "quit-player1";
+        message["type"] = "quit-player-slot";
+        message["content"] = "player1";
         let messageRaw = JSON.stringify(message);
         ws.send(messageRaw);
     });
@@ -186,7 +186,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     player2QuitButton?.addEventListener("click", () => {
         let message = {};
-        message["type"] = "quit-player2";
+        message["type"] = "quit-player-slot";
+        message["content"] = "player2";
         let messageRaw = JSON.stringify(message);
         ws.send(messageRaw);
     });

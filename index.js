@@ -19,7 +19,7 @@ app.listen(port);
 // - login-failed
 //
 // - sync-rooms
-// - join-room
+// - update-room-id
 //
 // - update-current-color
 // - update-restart-button-visibility
@@ -141,9 +141,9 @@ wss.on("connection", (ws, req) => {
                 }
                 rooms[roomId]["players"] = [clientIpPort];
 
-                // notify client the joined room id
+                // notify client to update the joined room id
                 let messageToClient = {};
-                messageToClient["type"] = "join-room";
+                messageToClient["type"] = "update-room-id";
                 messageToClient["content"] = roomId;
                 let messageToClientRaw = JSON.stringify(messageToClient);
                 ws.send(messageToClientRaw);
@@ -219,7 +219,7 @@ wss.on("connection", (ws, req) => {
 
                 // notify client the joined room id
                 messageToClient = {};
-                messageToClient["type"] = "join-room";
+                messageToClient["type"] = "update-room-id";
                 messageToClient["content"] = roomId;
                 messageToClientRaw = JSON.stringify(messageToClient);
                 ws.send(messageToClientRaw);

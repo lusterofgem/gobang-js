@@ -34,17 +34,38 @@ chat-box: ready ✔️
 checkerboard: ready ✔️
 
 ## client to server message
-
- - put-chess
+- login
 
 ```
 {
-    "type": "put-chess",
-    "content": "0,0"
+    "type": "login",
 }
 ```
 
- - restart-game
+- create-room
+
+```
+{
+    "type": "create-room",
+}
+```
+
+- join-room
+
+```
+{
+    "type": "join-room",
+}
+```
+
+- quit-room
+```
+{
+    "type": "quit-room",
+}
+```
+
+- restart-game
 
 ```
 {
@@ -52,80 +73,123 @@ checkerboard: ready ✔️
 }
 ```
 
- - chat
+- put-chess
+
+```
+{
+    "type": "put-chess",
+}
+```
+
+- request-player-slot
+
+```
+{
+    "type": "request-player-slot",
+}
+```
+
+- player-ready
+
+```
+{
+    "type": "player-ready",
+}
+```
+
+- quit-player-slot
+
+```
+{
+    "type": "quit-player-slot",
+}
+```
+
+- chat
 
 ```
 {
     "type": "chat",
-    "content": "hello there"
 }
 ```
 
 ## server to client message
 
- - put-chess
+- login-successful
+
+```
+{
+    "type": "login-successful"
+}
+```
+
+- login-failed
+
+```
+{
+    "type": "login-failedl",
+    "content": "please input a valid name"
+}
+```
+- sync-rooms
+
+```
+{
+    "type": "sync-rooms",
+}
+```
+
+- update-room-id
+
+```
+{
+    "type": "update-room-id",
+}
+```
+
+- update-current-color
+```
+{
+    "type": "update-current-color",
+}
+```
+
+- update-restart-button-visibility
+
+```
+{
+    "type": "update-restart-button-visibility",
+}
+```
+
+- sync-checkerboard
+
+```
+{
+    "type": "sync-checkerboard",
+}
+```
+
+- put-chess
 
 ```
 {
     "type": "put-chess",
-    "content": "0,0,black"
 }
 ```
 
- - sync-checkerboard
-
- ```
- {
-    "type": "sync-checkerboard",
-    "content": [
-        ["", "", "", ...],
-        ["", "", "", ...],
-        ["", "", "", ...],
-        ...
-    ]
- }
- ```
-
- - sync-winner
- 
-```
-{
-    "type": "sync-winner",
-    "content": "black"
-}
-```
-
- - sync-turn
+- update-player-slot
 
 ```
 {
-    "type": "sync-turn",
-    "content": "black"
+    "type": "update-player-slot",
 }
 ```
 
- - chat
+- chat
 
 ```
 {
     "type": "chat",
-    "content": "hello there"
 }
 ```
-
- - sync-player-slot
-
- ```
- {
-     "type": "sync-player-slot",
-     "content": [
-        "player1Name": "",
-        "player2Name": "",
-        "clientIsPlayer1": false,
-        "clientIsPlayer2": false,
-        "player1Ready": false,
-        "player2Ready": false
-     ]
- }
-
- 

@@ -34,6 +34,7 @@ checkerboard: ready ✔️
 chat-box: ready ✔️
 
 ## client to server message
+
 - login
 ```
 {
@@ -109,7 +110,7 @@ chat-box: ready ✔️
 - login-successful
 ```
 {
-    "type": "login-successful",
+    "type": "login-successful"
 }
 ```
 
@@ -125,6 +126,11 @@ chat-box: ready ✔️
 ```
 {
     "type": "sync-rooms",
+    "content": [
+        {},
+        {},
+        ...
+    ]
 }
 ```
 
@@ -132,6 +138,7 @@ chat-box: ready ✔️
 ```
 {
     "type": "update-room-id",
+    "content": 0
 }
 ```
 
@@ -139,6 +146,7 @@ chat-box: ready ✔️
 ```
 {
     "type": "update-current-color",
+    "content": "black"
 }
 ```
 
@@ -146,6 +154,7 @@ chat-box: ready ✔️
 ```
 {
     "type": "update-restart-button-visibility",
+    "content": true
 }
 ```
 
@@ -153,6 +162,11 @@ chat-box: ready ✔️
 ```
 {
     "type": "sync-checkerboard",
+    "content": [
+        ["", "", ...],
+        ["", "", ...],
+        ...
+    ]
 }
 ```
 
@@ -160,6 +174,7 @@ chat-box: ready ✔️
 ```
 {
     "type": "put-chess",
+    "content": "0,0,black"
 }
 ```
 
@@ -167,6 +182,16 @@ chat-box: ready ✔️
 ```
 {
     "type": "update-player-slot",
+    "content": {
+        "player1": "Tom",
+        "player1ReadyButtonVisibility": true,
+        "player1QuitButtonVisibility": true,
+        "player1JoinButtonVisibility": false,
+        "player2": "Jerry",
+        "player1ReadyButtonVisibility": false,
+        "player1QuitButtonVisibility": false,
+        "player1JoinButtonVisibility": false
+    }
 }
 ```
 
@@ -174,5 +199,6 @@ chat-box: ready ✔️
 ```
 {
     "type": "chat",
+    "content": "Tom: hello there"
 }
 ```

@@ -689,35 +689,28 @@ wss.on("connection", (ws, req) => {
                     return;
                 }
 
-                if(requestedPlayerSlot === "player1") {
-                    // if the request client is not in the room or player1 is not empty, return
-                    if(!rooms[roomId]["players"].includes(clientIpPort) || rooms[roomId]["player1"] != null) {
-                        return;
-                    }
+                // if the requesting client is not in the room or the requesting player slot is not empty, return
+                if(!rooms[roomId]["players"].includes(clientIpPort) || rooms[roomId][requestedPlayerSlot] != null) {
+                    return;
+                }
 
-                    // if the player is already in the player2 slot, remove from player2 slot
+                // if the player is already in the another slot, remove from another slot
+                if(requestedPlayerSlot === "player1") {
                     if(rooms[roomId]["player2"] == clientIpPort) {
                         delete rooms[roomId]["player2"];
                         delete rooms[roomId]["player2Ready"];
                     }
 
-                    // join player1 slot
-                    rooms[roomId]["player1"] = clientIpPort;
                 } else {
-                    // if the request client is not in the room or player2 is not empty, return
-                    if(!rooms[roomId]["players"].includes(clientIpPort) || rooms[roomId]["player2"] != null) {
-                        return;
-                    }
-
                     // if the player is already in the player1 slot, remove from player1 slot
                     if(rooms[roomId]["player1"] == clientIpPort) {
                         delete rooms[roomId]["player1"];
                         delete rooms[roomId]["player1Ready"];
                     }
-
-                    // join player2 slot
-                    rooms[roomId]["player2"] = clientIpPort;
                 }
+
+                // join player1 slot
+                rooms[roomId][requestedPlayerSlot] = clientIpPort;
 
                 // notify all clients in the same room to update player slot
                 wss.clients.forEach((client) => {

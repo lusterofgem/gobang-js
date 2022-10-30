@@ -27,7 +27,7 @@ app.listen(port);
 // - put-chess
 // - update-player-slot
 // - chat
-
+//
 // [input message]
 // - login
 //
@@ -402,18 +402,6 @@ wss.on("connection", (ws, req) => {
                 rooms[roomId]["currentRound"] = (Math.random() > 0.5) ? "player1" : "player2";
                 rooms[roomId]["player1Color"] = rooms[roomId]["currentRound"] == "player1" ? "black" : "white";
 
-                // hint the players in the room who is black, go first
-                let messageToClient = {};
-                messageToClient["type"] = "chat";
-                messageToClient["content"] = `[server] ${clientsName[rooms[roomId][rooms[roomId]["currentRound"]]]} is black, go first! `;
-                let messageToClientRaw = JSON.stringify(messageToClient);
-                wss.clients.forEach((client) => {
-                    let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
-                    if(rooms[roomId]["players"].includes(ipPort)) {
-                        client.send(messageToClientRaw);
-                    }
-                });
-
                 // clear the checkerboard
                 for(let i = 0; i < mapSize; ++i) {
                     for(let j = 0; j < mapSize; ++j) {
@@ -461,6 +449,18 @@ wss.on("connection", (ws, req) => {
                 messageToClientRaw = JSON.stringify(messageToClient);
                 wss.clients.forEach((client) => {
                     client.send(messageToClientRaw);
+                });
+
+                // hint the players in the room who is black, go first
+                let messageToClient = {};
+                messageToClient["type"] = "chat";
+                messageToClient["content"] = `[server] ${clientsName[rooms[roomId][rooms[roomId]["currentRound"]]]} is black, go first! `;
+                let messageToClientRaw = JSON.stringify(messageToClient);
+                wss.clients.forEach((client) => {
+                    let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
+                    if(rooms[roomId]["players"].includes(ipPort)) {
+                        client.send(messageToClientRaw);
+                    }
                 });
 
                 break;
@@ -789,18 +789,6 @@ wss.on("connection", (ws, req) => {
                     rooms[roomId]["currentRound"] = (Math.random() > 0.5) ? "player1" : "player2";
                     rooms[roomId]["player1Color"] = rooms[roomId]["currentRound"] == "player1" ? "black" : "white";
 
-                    // hint the players in the room who is black, go first
-                    let messageToClient = {};
-                    messageToClient["type"] = "chat";
-                    messageToClient["content"] = `[server] ${clientsName[rooms[roomId][rooms[roomId]["currentRound"]]]} is black, go first!`;
-                    let messageToClientRaw = JSON.stringify(messageToClient);
-                    wss.clients.forEach((client) => {
-                        let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
-                        if(rooms[roomId]["players"].includes(ipPort)) {
-                            client.send(messageToClientRaw);
-                        }
-                    });
-
                     // clear the checkerboard
                     for(let i = 0; i < mapSize; ++i) {
                         for(let j = 0; j < mapSize; ++j) {
@@ -825,6 +813,18 @@ wss.on("connection", (ws, req) => {
                     messageToClient["type"] = "chat";
                     messageToClient["content"] = `[server] game started!`;
                     messageToClientRaw = JSON.stringify(messageToClient);
+                    wss.clients.forEach((client) => {
+                        let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
+                        if(rooms[roomId]["players"].includes(ipPort)) {
+                            client.send(messageToClientRaw);
+                        }
+                    });
+
+                    // hint the players in the room who is black, go first
+                    let messageToClient = {};
+                    messageToClient["type"] = "chat";
+                    messageToClient["content"] = `[server] ${clientsName[rooms[roomId][rooms[roomId]["currentRound"]]]} is black, go first!`;
+                    let messageToClientRaw = JSON.stringify(messageToClient);
                     wss.clients.forEach((client) => {
                         let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
                         if(rooms[roomId]["players"].includes(ipPort)) {

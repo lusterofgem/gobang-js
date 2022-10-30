@@ -448,7 +448,10 @@ wss.on("connection", (ws, req) => {
                 messageToClient["content"] = "black"
                 messageToClientRaw = JSON.stringify(messageToClient);
                 wss.clients.forEach((client) => {
-                    client.send(messageToClientRaw);
+                    let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
+                    if(rooms[roomId]["players"].includes(ipPort)) {
+                        client.send(messageToClientRaw);
+                    }
                 });
 
                 // hint the players in the room who is black, go first
@@ -687,7 +690,10 @@ wss.on("connection", (ws, req) => {
                 messageToClient["content"] = nextColor;
                 messageToClientRaw = JSON.stringify(messageToClient);
                 wss.clients.forEach((client) => {
-                    client.send(messageToClientRaw);
+                    let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
+                    if(rooms[roomId]["players"].includes(ipPort)) {
+                        client.send(messageToClientRaw);
+                    }
                 });
 
                 break;

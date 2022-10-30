@@ -833,68 +833,36 @@ wss.on("connection", (ws, req) => {
                     return;
                 }
 
-                if(requestedPlayerSlot === "player1") {
-                    // if client is not player1, return
-                    if(rooms[roomId]["player1"] !== clientIpPort) {
-                        return;
-                    }
-
-                    // if it is not game over yet, the opponent wins the game
-                    if(rooms[roomId]["winner"] === "") {
-                        let opponentIpPort = rooms[roomId]["player2"];
-                        rooms[roomId]["winner"] = "player2";
-
-                        // hint all players in the room
-                        let messageToClient = {};
-                        messageToClient["type"] = "chat";
-                        messageToClient["content"] = `[server] ${clientsName[opponentIpPort]} wins!`;
-                        let messageToClientRaw = JSON.stringify(messageToClient);
-                        wss.clients.forEach((client) => {
-                            let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
-                            if(rooms[roomId]["players"].includes(ipPort)) {
-                                client.send(messageToClientRaw);
-                            }
-                        });
-                    }
-
-                    // remove player1 information
-                    delete rooms[roomId]["player1"];
-
-                    // unready the two players
-                    delete rooms[roomId]["player1Ready"];
-                    delete rooms[roomId]["player2Ready"];
-                } else {
-                    // if client is not player2, return
-                    if(rooms[roomId]["player2"] !== clientIpPort) {
-                        return;
-                    }
-
-                    // if it is not game over yet, the opponent wins the game
-                    if(rooms[roomId]["winner"] === "") {
-                        let opponentIpPort = rooms[roomId]["player1"];
-                        rooms[roomId]["winner"] = "player1";
-
-                        // hint all players in the room
-                        let messageToClient = {};
-                        messageToClient["type"] = "chat";
-                        messageToClient["content"] = `[server] ${clientsName[opponentIpPort]} wins!`;
-                        let messageToClientRaw = JSON.stringify(messageToClient);
-                        wss.clients.forEach((client) => {
-                            let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
-                            if(rooms[roomId]["players"].includes(ipPort)) {
-                                client.send(messageToClientRaw);
-                            }
-                        });
-                    }
-
-                    // remove player1 information
-                    delete rooms[roomId]["player1"];
-
-                    // unready the two players
-                    delete rooms[roomId]["player1Ready"];
-                    delete rooms[roomId]["player2Ready"];
-
+                // if client is not in requested player slot, return
+                if(rooms[roomId][requestedPlayerSlot] !== clientIpPort) {
+                    return;
                 }
+
+                // if it is not game over yet, the opponent wins the game
+                if(rooms[roomId]["winner"] === "") {
+                    let opponentIpPort = requestedPlayerSlot == "player1" ? rooms[roomId]["player2"] : rooms[roomId]["player1"];
+                    rooms[roomId]["winner"] = requestedPlayerSlot == "player1" ? "player2" : "player1";
+
+                    // say the winner to all players in the room
+                    let messageToClient = {};
+                    messageToClient["type"] = "chat";
+                    messageToClient["content"] = `[server] ${clientsName[opponentIpPort]} wins!`;
+                    let messageToClientRaw = JSON.stringify(messageToClient);
+                    wss.clients.forEach((client) => {
+                        let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
+                        if(rooms[roomId]["players"].includes(ipPort)) {
+                            client.send(messageToClientRaw);
+                        }
+                    });
+                }
+
+                // remove the specified player information from the room
+                delete rooms[roomId][requestedPlayerSlot];
+
+                // unready the two players
+                delete rooms[roomId]["player1Ready"];
+                delete rooms[roomId]["player2Ready"];
+
                 // notify all clients in the same room to update player slot
                 wss.clients.forEach((client) => {
                     let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;

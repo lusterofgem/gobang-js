@@ -29,13 +29,12 @@ login-page: ready ✔️
 
 room-page: ready ✔️
 
-chat-box: ready ✔️
-
 checkerboard: ready ✔️
+
+chat-box: ready ✔️
 
 ## client to server message
 - login
-
 ```
 {
     "type": "login",
@@ -43,7 +42,6 @@ checkerboard: ready ✔️
 ```
 
 - create-room
-
 ```
 {
     "type": "create-room",
@@ -51,7 +49,6 @@ checkerboard: ready ✔️
 ```
 
 - join-room
-
 ```
 {
     "type": "join-room",
@@ -66,7 +63,6 @@ checkerboard: ready ✔️
 ```
 
 - restart-game
-
 ```
 {
     "type": "restart-game",
@@ -74,7 +70,6 @@ checkerboard: ready ✔️
 ```
 
 - put-chess
-
 ```
 {
     "type": "put-chess",
@@ -82,7 +77,6 @@ checkerboard: ready ✔️
 ```
 
 - request-player-slot
-
 ```
 {
     "type": "request-player-slot",
@@ -90,7 +84,6 @@ checkerboard: ready ✔️
 ```
 
 - player-ready
-
 ```
 {
     "type": "player-ready",
@@ -98,7 +91,6 @@ checkerboard: ready ✔️
 ```
 
 - quit-player-slot
-
 ```
 {
     "type": "quit-player-slot",
@@ -106,7 +98,6 @@ checkerboard: ready ✔️
 ```
 
 - chat
-
 ```
 {
     "type": "chat",
@@ -116,23 +107,21 @@ checkerboard: ready ✔️
 ## server to client message
 
 - login-successful
-
 ```
 {
-    "type": "login-successful"
+    "type": "login-successful",
 }
 ```
 
 - login-failed
-
 ```
 {
-    "type": "login-failedl",
+    "type": "login-failed",
     "content": "please input a valid name"
 }
 ```
-- sync-rooms
 
+- sync-rooms
 ```
 {
     "type": "sync-rooms",
@@ -140,7 +129,6 @@ checkerboard: ready ✔️
 ```
 
 - update-room-id
-
 ```
 {
     "type": "update-room-id",
@@ -155,7 +143,6 @@ checkerboard: ready ✔️
 ```
 
 - update-restart-button-visibility
-
 ```
 {
     "type": "update-restart-button-visibility",
@@ -163,7 +150,6 @@ checkerboard: ready ✔️
 ```
 
 - sync-checkerboard
-
 ```
 {
     "type": "sync-checkerboard",
@@ -171,7 +157,6 @@ checkerboard: ready ✔️
 ```
 
 - put-chess
-
 ```
 {
     "type": "put-chess",
@@ -179,7 +164,6 @@ checkerboard: ready ✔️
 ```
 
 - update-player-slot
-
 ```
 {
     "type": "update-player-slot",
@@ -187,7 +171,6 @@ checkerboard: ready ✔️
 ```
 
 - chat
-
 ```
 {
     "type": "chat",

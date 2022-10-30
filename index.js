@@ -654,7 +654,7 @@ wss.on("connection", (ws, req) => {
                     messageToClient = {};
                     messageToClient["type"] = "chat";
                     if(rooms[roomId]["winner"] !== "draw") {
-                        messageToClient["content"] = `[server] ${clientsName[[rooms[roomId]["winner"]]]} wins!`;
+                        messageToClient["content"] = `[server] ${clientsName[rooms[roomId][rooms[roomId]["winner"]]]} wins!`;
                     } else {
                         messageToClient["content"] = `[server] It's a draw!`;
                     }

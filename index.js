@@ -1045,7 +1045,7 @@ wss.on("connection", (ws, req) => {
                 roomsInfo[i] = null;
                 continue;
             }
-            roomsInfo.push({});
+            roomsInfo[i] = {};
         }
         messageToClient = {};
         messageToClient["type"] = "sync-rooms";

@@ -255,7 +255,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 let rooms = message["content"];
                 for(let roomId in rooms) {
                     if(rooms[roomId] != null) {
-                        console.log(rooms[roomId]);
                         let roomBox = document.createElement("div");
                         let roomLabel = document.createElement("label");
                         let roomButton = document.createElement("button");

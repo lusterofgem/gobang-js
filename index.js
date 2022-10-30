@@ -120,12 +120,7 @@ wss.on("connection", (ws, req) => {
                         let messageToClientRaw = JSON.stringify(messageToClient);
                         ws.send(messageToClientRaw);
 
-                        // notify client to sync rooms
-                        messageToClient = {};
-                        messageToClient["type"] = "sync-rooms";
-                        messageToClient["content"] = rooms;
-                        messageToClientRaw = JSON.stringify(messageToClient);
-                        ws.send(messageToClientRaw);
+                        messageClientSyncRooms(ws);
                     }
                 } else { //empty name
                     let messageToClient = {};
@@ -213,12 +208,7 @@ wss.on("connection", (ws, req) => {
                     }
 
                     // send message
-                    messageToClient = {};
-                    messageToClient["type"] = "sync-rooms";
-                    messageToClient["content"] = rooms;
-                    messageToClientRaw = JSON.stringify(messageToClient);
-                    ws.send(messageToClientRaw);
-                    client.send(messageToClientRaw);
+                    messageClientSyncRooms(client);
                 });
 
                 // greeting to player in the same room
@@ -407,21 +397,12 @@ wss.on("connection", (ws, req) => {
                         }
 
                         // send message
-                        messageToClient = {};
-                        messageToClient["type"] = "sync-rooms";
-                        messageToClient["content"] = rooms;
-                        messageToClientRaw = JSON.stringify(messageToClient);
-                        ws.send(messageToClientRaw);
-                        client.send(messageToClientRaw);
+                        messageClientSyncRooms(client);
                     });
                 }
 
                 // notify the quit client to sync rooms
-                messageToClient = {};
-                messageToClient["type"] = "sync-rooms";
-                messageToClient["content"] = rooms;
-                messageToClientRaw = JSON.stringify(messageToClient);
-                ws.send(messageToClientRaw);
+                messageClientSyncRooms(ws);
 
                 break;
             }
@@ -1229,12 +1210,7 @@ wss.on("connection", (ws, req) => {
                 }
 
                 // send message
-                messageToClient = {};
-                messageToClient["type"] = "sync-rooms";
-                messageToClient["content"] = rooms;
-                messageToClientRaw = JSON.stringify(messageToClient);
-                ws.send(messageToClientRaw);
-                client.send(messageToClientRaw);
+                messageClientSyncRooms(client);
             });
         }
 
@@ -1242,22 +1218,20 @@ wss.on("connection", (ws, req) => {
         delete clientsName[clientIpPort];
     });
 
-    function clearCheckerboard(roomId) {
-        // if room id is null, return
-        if(roomId == null) {
-            return;
-        }
-
-        // if the room is not exist, return
-        if(rooms[roomId] == null) {
-            return;
-        }
-
-        // clear the checker board
-        for(let i = 0; i < mapSize; ++i) {
-            for(let j = 0; j < mapSize; ++j) {
-                rooms[roomId]["checkerboard"][i][j] = "";
+    function messageClientSyncRooms(wsClient) {
+        // notify client to sync rooms
+        let roomsInfo = [];
+        for(let i = 0; i < rooms.length; ++i) {
+            if(rooms[i] == null) {
+                roomsInfo = null;
+                continue;
             }
+            roomsInfo[i] = {};
         }
+        messageToClient = {};
+        messageToClient["type"] = "sync-rooms";
+        messageToClient["content"] = roomsInfo;
+        messageToClientRaw = JSON.stringify(messageToClient);
+        wsClient.send(messageToClientRaw);
     }
 });

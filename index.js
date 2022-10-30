@@ -50,13 +50,6 @@ const mapSize = 15;
 // record client ip:port & name to key & value
 let clientsName = {};
 
-// let checkerboard = [];
-// for(let i = 0; i < mapSize; ++i) {
-//     checkerboard[i] = [];
-//     for(let j = 0; j < mapSize; ++j) {
-//         checkerboard[i][j] = "";
-//     }
-// }
 // record every rooms' information, e.g.
 // [
 //     {
@@ -469,17 +462,17 @@ wss.on("connection", (ws, req) => {
                 rooms[roomId]["currentRound"] = (Math.random() > 0.5) ? "player1" : "player2";
                 rooms[roomId]["player1Color"] = rooms[roomId]["currentRound"] == "player1" ? "black" : "white";
 
-                // clear checkerboard
+                // clear the checkerboard
                 for(let i = 0; i < mapSize; ++i) {
                     for(let j = 0; j < mapSize; ++j) {
-                        rooms[roomId]["checkerboard"][i][j] = ""
+                        rooms[roomId]["checkerboard"][i][j] = "";
                     }
                 }
 
-                // hint the game is restart
+                // notify all client to sync checkerboard
                 let messageToClient = {};
-                messageToClient["type"] = "chat";
-                messageToClient["content"] = "[server] game restart!";
+                messageToClient["type"] = "sync-checkerboard";
+                messageToClient["content"] = rooms[roomId]["checkerboard"];
                 let messageToClientRaw = JSON.stringify(messageToClient);
                 wss.clients.forEach((client) => {
                     let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
@@ -488,13 +481,16 @@ wss.on("connection", (ws, req) => {
                     }
                 });
 
-                // notify client to sync checkerboard
+                // hint the game is restart
                 messageToClient = {};
-                messageToClient["type"] = "sync-checkerboard";
-                messageToClient["content"] = rooms[roomId]["checkerboard"];
+                messageToClient["type"] = "chat";
+                messageToClient["content"] = "[server] game restart!";
                 messageToClientRaw = JSON.stringify(messageToClient);
                 wss.clients.forEach((client) => {
-                    client.send(messageToClientRaw);
+                    let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
+                    if(rooms[roomId]["players"].includes(ipPort)) {
+                        client.send(messageToClientRaw);
+                    }
                 });
 
                 // notify client to sync winner
@@ -821,11 +817,30 @@ wss.on("connection", (ws, req) => {
                     rooms[roomId]["currentRound"] = (Math.random() > 0.5) ? "player1" : "player2";
                     rooms[roomId]["player1Color"] = rooms[roomId]["currentRound"] == "player1" ? "black" : "white";
 
-                    // hint the player in this room, the game is started
+                    // clear the checkerboard
+                    for(let i = 0; i < mapSize; ++i) {
+                        for(let j = 0; j < mapSize; ++j) {
+                            rooms[roomId]["checkerboard"][i][j] = "";
+                        }
+                    }
+
+                    // notify all client to sync checkerboard
                     let messageToClient = {};
+                    messageToClient["type"] = "sync-checkerboard";
+                    messageToClient["content"] = rooms[roomId]["checkerboard"];
+                    let messageToClientRaw = JSON.stringify(messageToClient);
+                    wss.clients.forEach((client) => {
+                        let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
+                        if(rooms[roomId]["players"].includes(ipPort)) {
+                            client.send(messageToClientRaw);
+                        }
+                    });
+
+                    // hint the player in this room, the game is started
+                    messageToClient = {};
                     messageToClient["type"] = "chat";
                     messageToClient["content"] = `[server] game started!`;
-                    let messageToClientRaw = JSON.stringify(messageToClient);
+                    messageToClientRaw = JSON.stringify(messageToClient);
                     wss.clients.forEach((client) => {
                         let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
                         if(rooms[roomId]["players"].includes(ipPort)) {
@@ -834,7 +849,7 @@ wss.on("connection", (ws, req) => {
                     });
                 }
 
-                // notify all clients in the same room to update player slot
+                // notify all clients in the same room to sync player slot
                 wss.clients.forEach((client) => {
                     let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
                     if(rooms[roomId]["players"].includes(ipPort)) {
@@ -976,11 +991,30 @@ wss.on("connection", (ws, req) => {
                     rooms[roomId]["currentRound"] = (Math.random() > 0.5) ? "player1" : "player2";
                     rooms[roomId]["player1Color"] = rooms[roomId]["currentRound"] == "player1" ? "black" : "white";
 
-                    // hint the player in this room, the game is started
+                    // clear the checkerboard
+                    for(let i = 0; i < mapSize; ++i) {
+                        for(let j = 0; j < mapSize; ++j) {
+                            rooms[roomId]["checkerboard"][i][j] = "";
+                        }
+                    }
+
+                    // notify all client to sync checkerboard
                     let messageToClient = {};
+                    messageToClient["type"] = "sync-checkerboard";
+                    messageToClient["content"] = rooms[roomId]["checkerboard"];
+                    let messageToClientRaw = JSON.stringify(messageToClient);
+                    wss.clients.forEach((client) => {
+                        let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
+                        if(rooms[roomId]["players"].includes(ipPort)) {
+                            client.send(messageToClientRaw);
+                        }
+                    });
+
+                    // hint the player in this room, the game is started
+                    messageToClient = {};
                     messageToClient["type"] = "chat";
                     messageToClient["content"] = `[server] game started!`;
-                    let messageToClientRaw = JSON.stringify(messageToClient);
+                    messageToClientRaw = JSON.stringify(messageToClient);
                     wss.clients.forEach((client) => {
                         let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
                         if(rooms[roomId]["players"].includes(ipPort)) {
@@ -1081,7 +1115,6 @@ wss.on("connection", (ws, req) => {
     ws.on("close", () => {
         console.log(`${clientIpPort} disconnected!`);
 
-        // say goodbye to all players in the same room
         let roomId = null;
         for(let i = 0; i < rooms.length; ++i) {
             if(rooms[i] != null) {
@@ -1090,18 +1123,24 @@ wss.on("connection", (ws, req) => {
                 }
             }
         }
-        if(roomId != null) {
-            let messageToClient = {};
-            messageToClient["type"] = "chat";
-            messageToClient["content"] = `${clientsName[clientIpPort]} leaved!`;
-            let messageToClientRaw = JSON.stringify(messageToClient);
-            wss.clients.forEach((client) => {
-                let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
-                if(rooms[roomId]["players"].includes(ipPort)) {
-                    client.send(messageToClientRaw);
-                }
-            });
+
+        // delete name record and return, if the client is not in a room
+        if(roomId == null) {
+            delete clientsName[clientIpPort];
+            return;
         }
+
+        // say goodbye to all players in the same room
+        let messageToClient = {};
+        messageToClient["type"] = "chat";
+        messageToClient["content"] = `${clientsName[clientIpPort]} leaved!`;
+        let messageToClientRaw = JSON.stringify(messageToClient);
+        wss.clients.forEach((client) => {
+            let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
+            if(rooms[roomId]["players"].includes(ipPort)) {
+                client.send(messageToClientRaw);
+            }
+        });
 
         // if it is not game over yet, the opponent wins the game
         if(rooms[roomId]["winner"] === "") {
@@ -1202,4 +1241,23 @@ wss.on("connection", (ws, req) => {
         // remove client ip:port and name record from object
         delete clientsName[clientIpPort];
     });
+
+    function clearCheckerboard(roomId) {
+        // if room id is null, return
+        if(roomId == null) {
+            return;
+        }
+
+        // if the room is not exist, return
+        if(rooms[roomId] == null) {
+            return;
+        }
+
+        // clear the checker board
+        for(let i = 0; i < mapSize; ++i) {
+            for(let j = 0; j < mapSize; ++j) {
+                rooms[roomId]["checkerboard"][i][j] = "";
+            }
+        }
+    }
 });

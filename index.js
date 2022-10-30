@@ -660,7 +660,10 @@ wss.on("connection", (ws, req) => {
                     }
                     messageToClientRaw = JSON.stringify(messageToClient);
                     wss.clients.forEach((client) => {
-                        client.send(messageToClientRaw);
+                        let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;
+                        if(rooms[roomId]["players"].includes(ipPort)) {
+                            client.send(messageToClientRaw);
+                        }
                     });
                 }
 

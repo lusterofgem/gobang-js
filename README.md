@@ -4,9 +4,9 @@ A gobang game server.
 
 ![preview](https://github.com/lusterofgem/gobang-js/blob/main/assets/images/preview.png)
 
-The client & serveer use ws to transfer message to communicate.
+The client & server use stringify json to transfer message on the websocket.
 
-The message is a json (stringifed object), the structure is like this:
+e.g.
 
 ```
 {
@@ -17,26 +17,62 @@ The message is a json (stringifed object), the structure is like this:
 
 ## using port
 
- - express: 8080
+ - http: 8080
 
- - ws: 8081
+ - websocket: 8081
 
 ## status
 
-chat-box: ready ✔️
+we are fixing bugs! 🚧
+
+login-page: ready ✔️
+
+room-page: ready ✔️
 
 checkerboard: ready ✔️
 
-identify different players: nope ❌
-
-hub: nope ❌
-
-battle room: nope ❌
+chat-box: ready ✔️
 
 ## client to server message
- 
- - put-chess
 
+- login
+```
+{
+    "type": "login",
+    "content": "Tom"
+}
+```
+
+- create-room
+```
+{
+    "type": "create-room",
+}
+```
+
+- join-room
+```
+{
+    "type": "join-room",
+    "content": "0"
+}
+```
+
+- quit-room
+```
+{
+    "type": "quit-room"
+}
+```
+
+- restart-game
+```
+{
+    "type": "restart-game"
+}
+```
+
+- put-chess
 ```
 {
     "type": "put-chess",
@@ -44,16 +80,31 @@ battle room: nope ❌
 }
 ```
 
- - restart-game
-
+- request-player-slot
 ```
 {
-    "type": "restart-game",
+    "type": "request-player-slot",
+    "content": "player1"
 }
 ```
 
- - chat
+- player-ready
+```
+{
+    "type": "player-ready",
+    "content": "player1"
+}
+```
 
+- quit-player-slot
+```
+{
+    "type": "quit-player-slot",
+    "content": "player1"
+}
+```
+
+- chat
 ```
 {
     "type": "chat",
@@ -63,8 +114,70 @@ battle room: nope ❌
 
 ## server to client message
 
- - put-chess
+- login-successful
+```
+{
+    "type": "login-successful"
+}
+```
 
+- login-failed
+```
+{
+    "type": "login-failed",
+    "content": "please input a valid name"
+}
+```
+
+- sync-rooms
+```
+{
+    "type": "sync-rooms",
+    "content": [
+        {},
+        {},
+        ...
+    ]
+}
+```
+
+- update-room-id
+```
+{
+    "type": "update-room-id",
+    "content": 0
+}
+```
+
+- update-current-color
+```
+{
+    "type": "update-current-color",
+    "content": "black"
+}
+```
+
+- update-restart-button-visibility
+```
+{
+    "type": "update-restart-button-visibility",
+    "content": true
+}
+```
+
+- sync-checkerboard
+```
+{
+    "type": "sync-checkerboard",
+    "content": [
+        ["", "", ...],
+        ["", "", ...],
+        ...
+    ]
+}
+```
+
+- put-chess
 ```
 {
     "type": "put-chess",
@@ -72,50 +185,27 @@ battle room: nope ❌
 }
 ```
 
- - sync-checkerboard
-
- ```
- {
-    "type": "sync-checkerboard",
-    "content": [
-        ["", "", "", ...],
-        ["", "", "", ...],
-        ["", "", "", ...],
-        ...
-    ]
- }
- ```
-
- - sync-winner
- 
+- update-player-slot
 ```
 {
-    "type": "sync-winner",
-    "content": "black"
+    "type": "update-player-slot",
+    "content": {
+        "player1": "Tom",
+        "player1ReadyButtonVisibility": true,
+        "player1QuitButtonVisibility": true,
+        "player1JoinButtonVisibility": false,
+        "player2": "Jerry",
+        "player1ReadyButtonVisibility": false,
+        "player1QuitButtonVisibility": false,
+        "player1JoinButtonVisibility": false
+    }
 }
 ```
 
- - sync-turn
-
-```
-{
-    "type": "sync-turn",
-    "content": "black"
-}
-```
-
- - chat
-
+- chat
 ```
 {
     "type": "chat",
-    "content": "hello there"
+    "content": "Tom: hello there"
 }
 ```
-
- ---
- 
-**To add as a contributor, please edit the README file and just delete your name, then save your work**
-
-
- 

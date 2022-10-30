@@ -7,27 +7,83 @@
 </head>
 
 <body>
-    <header>
-        <div id="ingame-top-box">
-            <div id="round-hint-box">
-                <label>Round:&nbsp;&nbsp;</label>
-                <image id="chess-color-image" src="/assets/images/black.png" width="25" height="25"><image>
-            </div>
-            <button id="restart-button">restart</button>
-        </div>
-    </header>
     <main>
-        <!--<div id="server-box">
-            <select></select>
-        </div>-->
-        <div id="checkerboard-box">
-            <canvas id="checkerboard" width="600" height="600"></canvas>
+        <!-- login page -->
+        <div id="login-page">
+            <h1 id="login-page-title">gobang-js</h1>
+            <div id="login-box">
+                <input id="login-input" placeholder="name"/>
+                <button id="login-button">enter</button>
+                <div id="login-hint-box">
+                    <labe id="login-hint-label"></label>
+                </div>
+            </div>
         </div>
-        <div id="chat-box">
-            <textarea id="text-area" disabled></textarea>
-            <div id="text-input-box">
-                <input id="text-input">
-                <button id="text-button">send</button>
+
+        <!-- room page -->
+        <div id="room-page">
+            <div id="join-room-box">
+                <input id="room-id-join-input" placeholder="room id"/>
+                <button id="room-id-join-button">join</button>
+            </div>
+            <div id="room-list">
+                <div id="create-room-box" class="room-box">
+                    <label class="room-label">create a new room?</label>
+                    <button id="create-room-button" class="room-button">create</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- battle page -->
+        <div id="battle-page">
+            <div id="ingame-top-box">
+                <div id="round-hint-box">
+                    <label>Round:&nbsp;&nbsp;</label>
+                    <image id="chess-color-image" src="/assets/images/black.png" width="25" height="25"><image>
+                </div>
+                <div>
+                    <label id="room-id-label"></label>
+                    <button id="quit-room-button">quit</button>
+                </div>
+                <button id="restart-button">restart</button>
+            </div>
+            <div id="battle-page-content">
+                <div id="checkerboard-box">
+                    <canvas id="checkerboard" width="600" height="600"></canvas>
+                </div>
+                <div id="battle-page-right-content">
+                    <div id="player-box">
+                        <div id="player1-box">
+                            <label id="player1-label">player1: </label>
+                            <label id="player1-name-label"></label>
+                            <br/>
+                            <image id="player1-color-image" src="/assets/images/black.png" width="25" height="25"><image>
+                            <div class="button-end-container">
+                                <button id="player1-ready-button">ready</button>
+                                <button id="player1-quit-button">quit</button>
+                                <button id="player1-join-button">join</button>
+                            </div>
+                        </div>
+                        <div id="player2-box">
+                            <label id="player2-label">player2: </label>
+                            <label id="player2-name-label"></label>
+                            <br/>
+                            <image id="player2-color-image" src="/assets/images/white.png" width="25" height="25"><image>
+                            <div class="button-end-container">
+                                <button id="player2-ready-button">ready</button>
+                                <button id="player2-quit-button">quit</button>
+                                <button id="player2-join-button">join</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="chat-box">
+                        <textarea id="text-area" disabled></textarea>
+                        <div id="text-input-box">
+                            <input id="text-input">
+                            <button id="text-button">send</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </main>

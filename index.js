@@ -864,6 +864,9 @@ wss.on("connection", (ws, req) => {
                 delete rooms[roomId]["player1Ready"];
                 delete rooms[roomId]["player2Ready"];
 
+                // update the restart button for the quiting client
+                notifyClientUpdateRestartButtonVisibility(ws, false);
+
                 // notify all clients in the same room to update player slot
                 wss.clients.forEach((client) => {
                     let ipPort = `${client["_socket"]["_peername"]["address"]}:${client["_socket"]["_peername"]["port"]}`;

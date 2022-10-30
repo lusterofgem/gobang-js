@@ -39,6 +39,7 @@ chat-box: ready ✔️
 ```
 {
     "type": "login",
+    "content": "Tom"
 }
 ```
 
@@ -53,20 +54,21 @@ chat-box: ready ✔️
 ```
 {
     "type": "join-room",
+    "content": "0"
 }
 ```
 
 - quit-room
 ```
 {
-    "type": "quit-room",
+    "type": "quit-room"
 }
 ```
 
 - restart-game
 ```
 {
-    "type": "restart-game",
+    "type": "restart-game"
 }
 ```
 
@@ -74,6 +76,7 @@ chat-box: ready ✔️
 ```
 {
     "type": "put-chess",
+    "content": "0,0"
 }
 ```
 
@@ -81,6 +84,7 @@ chat-box: ready ✔️
 ```
 {
     "type": "request-player-slot",
+    "content": "player1"
 }
 ```
 
@@ -88,6 +92,7 @@ chat-box: ready ✔️
 ```
 {
     "type": "player-ready",
+    "content": "player1"
 }
 ```
 
@@ -95,6 +100,7 @@ chat-box: ready ✔️
 ```
 {
     "type": "quit-player-slot",
+    "content": "player1"
 }
 ```
 
@@ -102,6 +108,7 @@ chat-box: ready ✔️
 ```
 {
     "type": "chat",
+    "content": "hello there"
 }
 ```
 

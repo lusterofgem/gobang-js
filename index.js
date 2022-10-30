@@ -130,7 +130,8 @@ wss.on("connection", (ws, req) => {
 
                 // create room
                 rooms[roomId] = {};
-                rooms[roomId]["currentColor"] = "black";
+                rooms[roomId]["currentRound"] = (Math.random() > 0.5) ? "player1" : "player2";
+                rooms[roomId]["player1Color"] = rooms[roomId]["currentRound"] == "player1" ? "black" : "white";
                 rooms[roomId]["checkerboard"] = [];
                 for(let i = 0; i < mapSize; ++i) {
                     rooms[roomId]["checkerboard"][i] = [];
@@ -207,11 +208,20 @@ wss.on("connection", (ws, req) => {
                 }
                 rooms[roomId]["players"].push(clientIpPort);
 
-                // notify client the joined room id
+                // notify client to update current color
+                let player1Color = rooms[roomId]["player1Color"];
+                let player2Color = rooms[roomId]["player2Color"] === "black" ? "black" : "white";
                 let messageToClient = {};
+                messageToClient["type"] = "update-current-color";
+                messageToClient["content"] = rooms[roomId]["currentRound"] === "player1" ? player1Color : player2Color;
+                let messageToClientRaw = JSON.stringify(messageToClient);
+                ws.send(messageToClientRaw);
+
+                // notify client the joined room id
+                messageToClient = {};
                 messageToClient["type"] = "join-room";
                 messageToClient["content"] = roomId;
-                let messageToClientRaw = JSON.stringify(messageToClient);
+                messageToClientRaw = JSON.stringify(messageToClient);
                 ws.send(messageToClientRaw);
 
                 // notify client to update restart button visibility
@@ -378,8 +388,8 @@ wss.on("connection", (ws, req) => {
 
                 // reset the game
                 rooms[roomId]["winner"] = "";
-                rooms[roomId]["player1Ready"] = false;
-                rooms[roomId]["player2Ready"] = false;
+                delete rooms[roomId]["player1Ready"];
+                delete rooms[roomId]["player2Ready"];
                 rooms[roomId]["currentRound"] = (Math.random() > 0.5) ? "player1" : "player2";
                 rooms[roomId]["player1Color"] = rooms[roomId]["currentRound"] == "player1" ? "black" : "white";
 
@@ -704,7 +714,7 @@ wss.on("connection", (ws, req) => {
                     // if the player is already in the player1 slot, remove from player1 slot
                     if(rooms[roomId]["player1"] == clientIpPort) {
                         delete rooms[roomId]["player1"];
-                        rooms[roomId]["player1Ready"] = false;
+                        delete rooms[roomId]["player1Ready"];
                     }
 
                     // join player2 slot
@@ -944,11 +954,11 @@ wss.on("connection", (ws, req) => {
             delete rooms[roomId]["player1Color"];
             if(rooms[roomId]["player1"] == clientIpPort) {
                 delete rooms[roomId]["player1"];
-                rooms[roomId]["player1Ready"] = false;
+                delete rooms[roomId]["player1Ready"];
             }
             if(rooms[roomId]["player2"] == clientIpPort) {
                 delete rooms[roomId]["player2"];
-                rooms[roomId]["player2Ready"] = false;
+                delete rooms[roomId]["player2Ready"];
             }
             rooms[roomId]["players"].splice(rooms[roomId]["players"].indexOf(clientIpPort), 1);
             if(rooms[roomId]["players"].length == 0) {

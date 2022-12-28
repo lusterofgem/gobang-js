@@ -23,7 +23,7 @@ e.g.
 
 ## status
 
-fixing ui: on progress 🚧
+fixing ui: ready ✔️
 
 login-page: ready ✔️
 
